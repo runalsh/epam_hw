@@ -1,0 +1,27 @@
+---
+- hosts: all
+  tasks: 
+  - name: check httpd present
+    yum:
+      name: httpd
+      state: present
+  - name: is httpd running
+    service:
+      name: httpd
+      state: started
+      enabled: yes
+  - name: create file
+    copy:
+      dest: /var/www/html/index.html
+      content: 'welcome to my web server'
+  - name: is fw running
+    service:
+      name: firewalld
+      state: started
+      enabled: yes
+  - name: open 80 port
+    firewalld:
+      port: 80/tcp
+      state: enabled 
+  
+...

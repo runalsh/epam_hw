@@ -1,0 +1,16 @@
+
+---
+- hosts: all
+  tasks: 
+  - name: grub
+    lineinfile:
+      dest: /etc/default/grub
+      regexp: '^(GRUB_CMDLINE_LINUX=\"[^\"]+)(\".*)' 
+      line: '\1 biosdevname=0 net.ifnames=0\2'
+      backrefs: yes
+      state: present
+
+  - name: generate
+    command: 
+      cmd: grub2-mkconfig
+...

@@ -1,0 +1,21 @@
+
+---
+- hosts: all
+  tasks: 
+  - name: remove httpd
+    yum:
+      name: httpd
+      state: absent
+  - name: remove file
+    file:
+      path: /var/www/html/index.html
+      state: absent  
+  - name: close 80 port
+    firewalld:
+      port: 80/tcp
+      state: disabled  
+  - name: restart fw
+    service: 
+      name: firewalld 
+      state: restarted
+...
