@@ -2,11 +2,19 @@
 ---
 - hosts: all
   tasks: 
-  - name: grub
+  - name: grub stage 1
     lineinfile:
       dest: /etc/default/grub
-      regexp: '^(GRUB_CMDLINE_LINUX=\"[^\'
-      line: '\1 biosdevname=0 net.ifnames=0\2'
+      regexp: '^(GRUB_CMDLINE_LINUX=(?!.* net.ifnames)\"[^\"]+)(\".*)'
+      line: '\1 net.ifnames=0\2'
+      backrefs: yes
+      state: present
+      
+    - name: grub stage 2
+    lineinfile:
+      dest: /etc/default/grub
+      regexp: '^(GRUB_CMDLINE_LINUX=(?!.* biosdevname)\"[^\"]+)(\".*)'
+      line: '\1 biosdevname=0\2'
       backrefs: yes
       state: present
 
