@@ -6,7 +6,9 @@
     lineinfile:
       dest: /etc/default/grub
       regexp: '^(GRUB_CMDLINE_LINUX=(?!.* net.ifnames)\"[^\"]+)(\".*)'
+     #  regexp: '^(GRUB_CMDLINE_LINUX=(?!.* net.ifnames)\"[^\"]+)
       line: '\1 net.ifnames=0\2'
+     # line: '\1 net\.ifnames=0\2'
       backrefs: yes
       state: present
       
