@@ -1,0 +1,27 @@
+---
+- hosts: all
+  tasks: 
+  - name: create users
+
+    user:
+      name: "{{ item.name }}"
+      home: "{{ item.home }}"
+      comment: "{{ item.comment }}"
+      password: "{{ item.password }}"
+      state: present
+      update_password: on_create
+
+    loop:
+    - name: alice
+      home: /home/alice
+      comment: alice@runalsh.ru
+      password: "{{ 'alicepass' | password_hash('sha512', 'saltalice') }}"
+    - name: bob
+      home: /home/bob
+      comment: bob@runalsh.ru
+      password: "{{ 'bobpass' | password_hash('sha512', 'saltbob') }}"
+    - name: carol
+      home: /home/carol
+      comment: bob@runalsh.ru
+      password: "{{ 'carolpass' | password_hash('sha512', 'saltcarol') }}"
+
