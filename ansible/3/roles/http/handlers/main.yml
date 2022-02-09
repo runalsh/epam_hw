@@ -1,0 +1,7 @@
+---
+ - name: restartfwhandler
+   service: 
+      name: firewalld 
+      state: restarted
+      
+

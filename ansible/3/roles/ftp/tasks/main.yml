@@ -1,0 +1,67 @@
+---
+- name: is "{{fw}}" and "{{ftp}}" present
+  loop: "{{packages}}"
+  package: 
+    name: "{{item}}"
+    state: present
+  
+- name: is "{{fw}}" and "{{ftp}}" started
+  loop: "{{packages}}" 
+  service: 
+    name: "{{item}}"
+    state: started
+
+- name: create "{{path}}"
+  file:
+    path: "{{path}}"
+    state: directory
+    mode: 0755
+    setype: public_content_rw_t
+
+- name: create "{{pathupload}}"
+  file:
+    path: "{{pathupload}}"
+    state: directory
+    mode: 0777
+    setype: public_content_rw_t
+
+- name: install python semanage
+  yum:
+    name:
+      - python3-libsemanage
+      - policycoreutils-python-utils
+    state: present
+
+- name: set selinux 
+  seboolean:
+    name: ftpd_anon_write
+    state: true
+    persistent: yes   
+  when:
+    - ansible_selinux.status == "enabled"
+  tags: selinux    
+
+- name: set selinux bool
+  command: setsebool ftpd_full_access on    
+  
+- name: restore con
+  command: restorecon -v /var/ftp/pub
+
+- name: create config for "{{ftp}}"
+  template:
+    src: templates/snake.j2
+    dest: /etc/vsftpd/vsftpd.conf
+  notify: restartftphandler
+      
+- name: open ftp port in fw
+  firewalld:
+    service: ftp
+    state: enabled
+    permanent: yes
+  notify: restartfwhandler  
+  
+- name: is "{{fw}}" and "{{ftp}}" started
+  loop: "{{packages}}" 
+  service: 
+    name: "{{item}}"
+    state: started

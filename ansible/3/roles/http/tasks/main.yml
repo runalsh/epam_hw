@@ -1,0 +1,24 @@
+---
+- name: is "{{web}}" and "{{fw}}" present
+  loop: "{{packages}}"
+  package: 
+    name: "{{item}}"
+    state: present
+    
+- name: create file for "{{web}}"
+  template:
+    src: templates/snake.j2
+    dest: "{{path}}"
+  
+- name: is "{{web}}" and "{{fw}}" started
+  loop: "{{packages}}" 
+  service: 
+    name: "{{item}}"
+    state: started
+
+      
+- name: open 80 port
+  firewalld:
+    port: 80/tcp
+    state: enabled
+  notify: restartfwhandler  

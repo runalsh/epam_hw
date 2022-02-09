@@ -1,0 +1,10 @@
+---
+ - name: restartfwhandler
+   service: 
+      name: firewalld 
+      state: restarted
+      
+ - name: restartftphandler
+   service: 
+      name: vsftpd 
+      state: restarted

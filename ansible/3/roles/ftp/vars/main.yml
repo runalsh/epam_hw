@@ -1,0 +1,10 @@
+---
+fw: firewalld
+path: /var/ftp/pub
+pathupload: /var/ftp/pub/upload
+ftp: vsftpd
+packages:
+- firewalld
+- vsftpd
+
+

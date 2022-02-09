@@ -1,0 +1,9 @@
+---
+fw: firewalld
+path: /var/www/html/index.html
+web: httpd
+packages:
+- firewalld
+- httpd
+
+
