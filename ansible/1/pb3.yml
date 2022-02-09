@@ -12,7 +12,7 @@
       backrefs: yes
       state: present
       
-    - name: grub stage 2
+  - name: grub stage 2
     lineinfile:
       dest: /etc/default/grub
       regexp: '^(GRUB_CMDLINE_LINUX=(?!.* biosdevname)\"[^\"]+)(\".*)'
