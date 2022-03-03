@@ -1,5 +1,5 @@
-# ========== Provider ==============================================
-# ==================================================================
+# ========== start ==============================================
+
 terraform {
   required_providers {
     aws = {
@@ -136,26 +136,25 @@ resource "aws_internet_gateway" "igw_main" {
 
 resource "aws_security_group" "sg_main" {
   name   = "aws-sec-group-main"
-  description = "allow 22 80 443 8080"
   vpc_id = aws_vpc.vpc_main.id 
   
   
-   # dynamic "ingress" {
-      # for_each = ["22","80","443","8080"]
-    # content {
-      # from_port        = ingress.value
-      # to_port          = ingress.value
-      # protocol         = "tcp"
-      # cidr_blocks      = ["0.0.0.0/0"]
-    # }
-# }
+   dynamic "ingress" {
+      for_each = ["22","80","443"]
+    content {
+      from_port        = ingress.value
+      to_port          = ingress.value
+      protocol         = "tcp"
+      cidr_blocks      = ["0.0.0.0/0"]
+    }
+}
 
-  ingress {
-    cidr_blocks = ["0.0.0.0/0"]
-    from_port   = 0
-    protocol    = "-1"
-    to_port     = 0
-  }
+  # ingress {
+    # cidr_blocks = ["0.0.0.0/0"]
+    # from_port   = 0
+    # protocol    = "-1"
+    # to_port     = 0
+  # }
 
   # ingress {
     # cidr_blocks = ["0.0.0.0/0"]
@@ -305,7 +304,7 @@ resource "aws_efs_mount_target" "efs_mount" {
   security_groups = [aws_security_group.efs_sg.id]
   }
 
-# ========== EFS security group ==============================
+# ========== EFS sg ==============================
 resource "aws_security_group" "efs_sg" {
   name = "efs_sg"
   vpc_id = aws_vpc.vpc_main.id
@@ -341,7 +340,7 @@ resource "aws_security_group" "efs_sg" {
 
 
 
-# ========== DB instance ===========================================
+# ========== DB ===========================================
 resource "aws_db_instance" "db" {
   identifier = "db"
   engine = "mysql"
@@ -383,7 +382,7 @@ data "aws_ssm_parameter" "rds-pass" {
   depends_on = [aws_ssm_parameter.rds_password]
 }
 
-# ========== DB security group ==============================
+# ========== DB sg==============================
 resource "aws_security_group" "db_sg" {
   name = "db_sg"
   vpc_id = aws_vpc.vpc_main.id
@@ -417,7 +416,7 @@ resource "aws_security_group" "db_sg" {
   ]
 }
 
-#=========================== DATA for template ================================
+#=========================== template ================================
 
 data "template_file" "cloudinit_main" {
   template = file("./ci.yml")
@@ -443,7 +442,7 @@ data "template_cloudinit_config" "cloudinit_config" {
 
 
 
-#===========================================   autoscaling ==========================
+#===========================================   scale ==========================
 resource "aws_launch_configuration" "launcher" {
   name_prefix   = "launcher-"
   associate_public_ip_address = true
