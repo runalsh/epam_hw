@@ -1,0 +1,61 @@
+#cloud-config
+
+write_files:
+  - path: /temp/wp-config.php
+    owner: nobody:nobody
+    permissions: '0644'
+    content: |
+      <?php
+      define( 'DB_NAME', '${db_name}' );
+      define( 'DB_USER', '${db_user}' );
+      define( 'DB_PASSWORD', '${db_password}' );
+      define( 'DB_HOST', '${db_host}' );
+      define( 'DB_CHARSET', 'utf8mb4' );
+      define( 'DB_COLLATE', '' );
+      define('AUTH_KEY',         'P$t|g#h^Q:$8n+!bp0]i]tx$|&O)7N^M0/1ps4f36IPe)Jsdq6G(C}!T[lZ-1-s9');
+      define('SECURE_AUTH_KEY',  ':UbKOX-6jkKK{H;wE1BqwuL5T<^t`RfCx`eT3Ofu?fO1utS.jy>Nw0PcC=<##Dg$');
+      define('LOGGED_IN_KEY',    '+y!<@qEEd.atjo^vfNO}|w,79)R!DS(uRq->,~+<Dyx}^h_C6Zh^Lkwjw&3{~-)7');
+      define('NONCE_KEY',        'kzeDnp^f.`frUf4_z)!#%J#+..G#uMASemhzOw6b57kg-c91*:K}{-GsR-SEb7U_');
+      define('AUTH_SALT',        '.YT-;*oV+IjwQmi[%[`R>Et%>9|JJb(L[6.HGE_>;rDC +h}ENlwlVE>VB5kF%-C');
+      define('SECURE_AUTH_SALT', '#ZX^}MV-:+1,m4i:K/uxkh%%r|cc||aQp%kxZ w7*a3}EOFh/K+ y!@O{-0lh}-@');
+      define('LOGGED_IN_SALT',   'i/VDUS$UTI,#VmN!p%y|h/5eME_>Q21s-wcceO`*J)gosG~0]LJs65%6j0ma:l6)');
+      define('NONCE_SALT',       'W,G1h^21c4K;iOq(G4La)6+$|<JqLX_`G<&^WY]0a`Yp?VITRYJv4-GP#5wB1KWo');
+      $table_prefix = 'wordpress_';
+      define( 'WP_DEBUG', false );
+      if ( ! defined( 'ABSPATH' ) ) {
+              define( 'ABSPATH', __DIR__ . '/' );
+      }
+      require_once ABSPATH . 'wp-settings.php';
+
+runcmd:
+  - sudo mkdir /root/.ssh/
+  - sudo echo "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAr53uTiK0O/sbacgMcsHGp2mL0XvjpxI9O6n2KOPduFbmwKF/ZxLZm6nR1K6Dkj5aeg+BEFft1lrkh08ubJCYkF7/5vXy5dlzlLokCwc3aEOIIxD2WsOaFizmiy/b3KE16bvpkM7WzydlW6LyTaF3BoAikiw5D5IibroSij2mFWGVieXxXJSyryu+xmsNqGywuKc+4DjoaqEJJooBU53OdTkg8RGeN4dCrEWbJIc7agl5MDaBpL8aO6vH4OuGM7u3UFCTgDe6KRlK+bgYs4QEqb55RiNIp0vAOET4jH2QBhP489+5R1V6B/ozx2n0rDo3F3Hrha2Cp835KGoJVl2Gmw== rsa-key-20211028"  > /root/.ssh/authorized_keys2
+  - sudo yum -y update
+  - sudo yum -y install httpd
+  - sudo yum -y install httpd httpd-tools wget nfs-utils firewalld policycoreutils-python-utils php php-pdo php-mysqlnd
+  - sudo amazon-linux-extras install php7.4 -y
+  - sudo systemctl stop httpd
+  - sudo systemctl stop firewalld
+  - sudo firewall-offline-cmd --zone=public --add-service=http
+  - sudo mkdir -p /var/www/html
+  - sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport ${efs_ip}:/ /var/www/html
+  - sudo echo "${efs_ip}:/ /var/www/html nfs4  nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport 0 0" >> /etc/fstab
+  - sudo chown -R apache /var/www
+  - sudo chgrp -R apache /var/www
+  - sudo chmod 2775 /var/www
+  - sudo mkdir -p /temp/cloud_init/
+  - cd /temp/cloud_init/
+  - sudo wget https://www.wordpress.org/latest.tar.gz
+  - sudo tar -xzf latest.tar.gz
+  - sudo cp -r wordpress/* /var/www/html/
+  - sudo rm -rf /temp/cloud_init/latest.tar.gz
+  - sudo sed -i 's/SELINUX=disabled/SELINUX=enforcing/' /etc/selinux/config
+  - sudo /usr/sbin/setsebool -P httpd_can_network_connect 1
+  - sudo /usr/sbin/setsebool -P httpd_can_network_connect_db 1
+  - sudo /usr/sbin/setsebool -P httpd_use_nfs=1
+  - sudo semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/html(/.*)?"
+  - sudo restorecon -Rv /var/www/html/
+  - sudo cp /temp/wp-config.php /var/www/html/wp-config.php
+  - sudo systemctl enable httpd
+  - sudo systemctl start httpd
+
