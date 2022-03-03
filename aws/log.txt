@@ -1,0 +1,1180 @@
+root@instance-20191022-2038:~/epamaws$ terraform apply -auto-approve
+
+Terraform used the selected providers to generate the following execution plan.
+Resource actions are indicated with the following symbols:
+  + create
+ <= read (data resources)
+
+Terraform will perform the following actions:
+
+  # data.aws_ssm_parameter.rds-pass will be read during apply
+  # (config refers to values not yet known)
+ <= data "aws_ssm_parameter" "rds-pass"  {
+      + arn     = (known after apply)
+      + id      = (known after apply)
+      + name    = "rds-ssm"
+      + type    = (known after apply)
+      + value   = (sensitive value)
+      + version = (known after apply)
+    }
+
+  # data.template_cloudinit_config.cloudinit_config will be read during apply
+  # (config refers to values not yet known)
+ <= data "template_cloudinit_config" "cloudinit_config"  {
+      + base64_encode = false
+      + gzip          = false
+      + id            = (known after apply)
+      + rendered      = (known after apply)
+
+      + part {
+          + content      = (known after apply)
+          + content_type = "text/cloud-config"
+          + filename     = "./ci.yml"
+        }
+    }
+
+  # data.template_file.cloudinit_main will be read during apply
+  # (config refers to values not yet known)
+ <= data "template_file" "cloudinit_main"  {
+      + id       = (known after apply)
+      + rendered = (known after apply)
+      + template = <<-EOT
+            #cloud-config
+
+            write_files:
+              - path: /temp/wp-config.php
+                owner: nobody:nobody
+                permissions: '0644'
+                content: |
+                  <?php
+                  define( 'DB_NAME', '${db_name}' );
+                  define( 'DB_USER', '${db_user}' );
+                  define( 'DB_PASSWORD', '${db_password}' );
+                  define( 'DB_HOST', '${db_host}' );
+                  define( 'DB_CHARSET', 'utf8mb4' );
+                  define( 'DB_COLLATE', '' );
+                  define('AUTH_KEY',         'P$t|g#h^Q:$8n+!bp0]i]tx$|&O)7N^M0/1ps4f36IPe)Jsdq6G(C}!T[lZ-1-s9');
+                  define('SECURE_AUTH_KEY',  ':UbKOX-6jkKK{H;wE1BqwuL5T<^t`RfCx`eT3Ofu?fO1utS.jy>Nw0PcC=<##Dg$');
+                  define('LOGGED_IN_KEY',    '+y!<@qEEd.atjo^vfNO}|w,79)R!DS(uRq->,~+<Dyx}^h_C6Zh^Lkwjw&3{~-)7');
+                  define('NONCE_KEY',        'kzeDnp^f.`frUf4_z)!#%J#+..G#uMASemhzOw6b57kg-c91*:K}{-GsR-SEb7U_');
+                  define('AUTH_SALT',        '.YT-;*oV+IjwQmi[%[`R>Et%>9|JJb(L[6.HGE_>;rDC +h}ENlwlVE>VB5kF%-C');
+                  define('SECURE_AUTH_SALT', '#ZX^}MV-:+1,m4i:K/uxkh%%r|cc||aQp%kxZ w7*a3}EOFh/K+ y!@O{-0lh}-@');
+                  define('LOGGED_IN_SALT',   'i/VDUS$UTI,#VmN!p%y|h/5eME_>Q21s-wcceO`*J)gosG~0]LJs65%6j0ma:l6)');
+                  define('NONCE_SALT',       'W,G1h^21c4K;iOq(G4La)6+$|<JqLX_`G<&^WY]0a`Yp?VITRYJv4-GP#5wB1KWo');
+                  $table_prefix = 'wordpress_';
+                  define( 'WP_DEBUG', false );
+                  if ( ! defined( 'ABSPATH' ) ) {
+                          define( 'ABSPATH', __DIR__ . '/' );
+                  }
+                  require_once ABSPATH . 'wp-settings.php';
+
+            runcmd:
+              - sudo mkdir /root/.ssh/
+              - sudo echo "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAr53uTiK0O/sbacgMcsHGp2mL0XvjpxI9O6n2KOPduFbmwKF/ZxLZm6nR1K6Dkj5aeg+BEFft1lrkh08ubJCYkF7/5vXy5dlzlLokCwc3aEOIIxD2WsOaFizmiy/b3KE16bvpkM7WzydlW6LyTaF3BoAikiw5D5IibroSij2mFWGVieXxXJSyryu+xmsNqGywuKc+4DjoaqEJJooBU53OdTkg8RGeN4dCrEWbJIc7agl5MDaBpL8aO6vH4OuGM7u3UFCTgDe6KRlK+bgYs4QEqb55RiNIp0vAOET4jH2QBhP489+5R1V6B/ozx2n0rDo3F3Hrha2Cp835KGoJVl2Gmw== rsa-key-20211028"  > /root/.ssh/authorized_keys2
+              - sudo yum -y update
+              - sudo yum -y install httpd
+              - sudo yum -y install httpd httpd-tools wget nfs-utils firewalld policycoreutils-python-utils php php-pdo php-mysqlnd
+              - sudo amazon-linux-extras install php7.4 -y
+              - sudo systemctl stop httpd
+              - sudo systemctl stop firewalld
+              - sudo firewall-offline-cmd --zone=public --add-service=http
+              - sudo mkdir -p /var/www/html
+              - sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport ${efs_ip}:/ /var/www/html
+              - sudo echo "${efs_ip}:/ /var/www/html nfs4  nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport 0 0" >> /etc/fstab
+              - sudo chown -R apache /var/www
+              - sudo chgrp -R apache /var/www
+              - sudo chmod 2775 /var/www
+              - sudo mkdir -p /temp/cloud_init/
+              - cd /temp/cloud_init/
+              - sudo wget https://www.wordpress.org/latest.tar.gz
+              - sudo tar -xzf latest.tar.gz
+              - sudo cp -r wordpress/* /var/www/html/
+              - sudo rm -rf /temp/cloud_init/latest.tar.gz
+              - sudo sed -i 's/SELINUX=disabled/SELINUX=enforcing/' /etc/selinux/config
+              - sudo /usr/sbin/setsebool -P httpd_can_network_connect 1
+              - sudo /usr/sbin/setsebool -P httpd_can_network_connect_db 1
+              - sudo /usr/sbin/setsebool -P httpd_use_nfs=1
+              - sudo semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/html(/.*)?"
+              - sudo restorecon -Rv /var/www/html/
+              - sudo cp /temp/wp-config.php /var/www/html/wp-config.php
+              - sudo systemctl enable httpd
+              - sudo systemctl start httpd
+
+        EOT
+      + vars     = {
+          + "db_host"     = (known after apply)
+          + "db_name"     = "wp_db"
+          + "db_password" = "dbpassword"
+          + "db_user"     = "dbadmin"
+          + "efs_ip"      = (known after apply)
+        }
+    }
+
+  # aws_autoscaling_group.autoscale_group will be created
+  + resource "aws_autoscaling_group" "autoscale_group" {
+      + arn                       = (known after apply)
+      + availability_zones        = (known after apply)
+      + default_cooldown          = 300
+      + desired_capacity          = 1
+      + force_delete              = false
+      + force_delete_warm_pool    = false
+      + health_check_grace_period = 10
+      + health_check_type         = "ELB"
+      + id                        = (known after apply)
+      + launch_configuration      = (known after apply)
+      + max_size                  = 2
+      + metrics_granularity       = "5Minute"
+      + min_size                  = 0
+      + name                      = (known after apply)
+      + name_prefix               = (known after apply)
+      + protect_from_scale_in     = true
+      + service_linked_role_arn   = (known after apply)
+      + target_group_arns         = (known after apply)
+      + vpc_zone_identifier       = (known after apply)
+      + wait_for_capacity_timeout = "10m"
+    }
+
+  # aws_db_instance.db will be created
+  + resource "aws_db_instance" "db" {
+      + address                               = (known after apply)
+      + allocated_storage                     = 20
+      + apply_immediately                     = (known after apply)
+      + arn                                   = (known after apply)
+      + auto_minor_version_upgrade            = true
+      + availability_zone                     = (known after apply)
+      + backup_retention_period               = (known after apply)
+      + backup_window                         = (known after apply)
+      + ca_cert_identifier                    = (known after apply)
+      + character_set_name                    = (known after apply)
+      + copy_tags_to_snapshot                 = false
+      + db_name                               = (known after apply)
+      + db_subnet_group_name                  = (known after apply)
+      + delete_automated_backups              = true
+      + endpoint                              = (known after apply)
+      + engine                                = "mysql"
+      + engine_version                        = "8.0.28"
+      + engine_version_actual                 = (known after apply)
+      + hosted_zone_id                        = (known after apply)
+      + id                                    = (known after apply)
+      + identifier                            = "db"
+      + identifier_prefix                     = (known after apply)
+      + instance_class                        = "db.t2.micro"
+      + kms_key_id                            = (known after apply)
+      + latest_restorable_time                = (known after apply)
+      + license_model                         = (known after apply)
+      + maintenance_window                    = (known after apply)
+      + monitoring_interval                   = 0
+      + monitoring_role_arn                   = (known after apply)
+      + multi_az                              = (known after apply)
+      + name                                  = "wp_db"
+      + nchar_character_set_name              = (known after apply)
+      + option_group_name                     = (known after apply)
+      + parameter_group_name                  = "default.mysql8.0"
+      + password                              = (sensitive value)
+      + performance_insights_enabled          = false
+      + performance_insights_kms_key_id       = (known after apply)
+      + performance_insights_retention_period = (known after apply)
+      + port                                  = (known after apply)
+      + publicly_accessible                   = false
+      + replica_mode                          = (known after apply)
+      + replicas                              = (known after apply)
+      + resource_id                           = (known after apply)
+      + skip_final_snapshot                   = true
+      + snapshot_identifier                   = (known after apply)
+      + status                                = (known after apply)
+      + storage_type                          = (known after apply)
+      + tags_all                              = (known after apply)
+      + timezone                              = (known after apply)
+      + username                              = "dbadmin"
+      + vpc_security_group_ids                = (known after apply)
+    }
+
+  # aws_db_subnet_group.sub_db_sg will be created
+  + resource "aws_db_subnet_group" "sub_db_sg" {
+      + arn         = (known after apply)
+      + description = "Managed by Terraform"
+      + id          = (known after apply)
+      + name        = "subnet-db-sg"
+      + name_prefix = (known after apply)
+      + subnet_ids  = (known after apply)
+      + tags_all    = (known after apply)
+    }
+
+  # aws_efs_file_system.efs will be created
+  + resource "aws_efs_file_system" "efs" {
+      + arn                     = (known after apply)
+      + availability_zone_id    = (known after apply)
+      + availability_zone_name  = (known after apply)
+      + creation_token          = (known after apply)
+      + dns_name                = (known after apply)
+      + encrypted               = (known after apply)
+      + id                      = (known after apply)
+      + kms_key_id              = (known after apply)
+      + number_of_mount_targets = (known after apply)
+      + owner_id                = (known after apply)
+      + performance_mode        = (known after apply)
+      + size_in_bytes           = (known after apply)
+      + tags                    = {
+          + "Name" = "efs_mount_point"
+        }
+      + tags_all                = {
+          + "Name" = "efs_mount_point"
+        }
+      + throughput_mode         = "bursting"
+    }
+
+  # aws_efs_mount_target.efs_mount[0] will be created
+  + resource "aws_efs_mount_target" "efs_mount" {
+      + availability_zone_id   = (known after apply)
+      + availability_zone_name = (known after apply)
+      + dns_name               = (known after apply)
+      + file_system_arn        = (known after apply)
+      + file_system_id         = (known after apply)
+      + id                     = (known after apply)
+      + ip_address             = (known after apply)
+      + mount_target_dns_name  = (known after apply)
+      + network_interface_id   = (known after apply)
+      + owner_id               = (known after apply)
+      + security_groups        = (known after apply)
+      + subnet_id              = (known after apply)
+    }
+
+  # aws_efs_mount_target.efs_mount[1] will be created
+  + resource "aws_efs_mount_target" "efs_mount" {
+      + availability_zone_id   = (known after apply)
+      + availability_zone_name = (known after apply)
+      + dns_name               = (known after apply)
+      + file_system_arn        = (known after apply)
+      + file_system_id         = (known after apply)
+      + id                     = (known after apply)
+      + ip_address             = (known after apply)
+      + mount_target_dns_name  = (known after apply)
+      + network_interface_id   = (known after apply)
+      + owner_id               = (known after apply)
+      + security_groups        = (known after apply)
+      + subnet_id              = (known after apply)
+    }
+
+  # aws_iam_instance_profile.ecs_service_role will be created
+  + resource "aws_iam_instance_profile" "ecs_service_role" {
+      + arn         = (known after apply)
+      + create_date = (known after apply)
+      + id          = (known after apply)
+      + name        = (known after apply)
+      + path        = "/"
+      + role        = "ecs-instance-role"
+      + tags_all    = (known after apply)
+      + unique_id   = (known after apply)
+    }
+
+  # aws_iam_role.ecs-instance-role will be created
+  + resource "aws_iam_role" "ecs-instance-role" {
+      + arn                   = (known after apply)
+      + assume_role_policy    = jsonencode(
+            {
+              + Statement = [
+                  + {
+                      + Action    = "sts:AssumeRole"
+                      + Effect    = "Allow"
+                      + Principal = {
+                          + Service = [
+                              + "ec2.amazonaws.com",
+                            ]
+                        }
+                    },
+                ]
+              + Version   = "2008-10-17"
+            }
+        )
+      + create_date           = (known after apply)
+      + force_detach_policies = false
+      + id                    = (known after apply)
+      + managed_policy_arns   = (known after apply)
+      + max_session_duration  = 3600
+      + name                  = "ecs-instance-role"
+      + name_prefix           = (known after apply)
+      + path                  = "/"
+      + tags_all              = (known after apply)
+      + unique_id             = (known after apply)
+
+      + inline_policy {
+          + name   = (known after apply)
+          + policy = (known after apply)
+        }
+    }
+
+  # aws_iam_role_policy_attachment.ecs-instance-role-attachment will be created
+  + resource "aws_iam_role_policy_attachment" "ecs-instance-role-attachment" {
+      + id         = (known after apply)
+      + policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+      + role       = "ecs-instance-role"
+    }
+
+  # aws_internet_gateway.igw_main will be created
+  + resource "aws_internet_gateway" "igw_main" {
+      + arn      = (known after apply)
+      + id       = (known after apply)
+      + owner_id = (known after apply)
+      + tags_all = (known after apply)
+      + vpc_id   = (known after apply)
+    }
+
+  # aws_key_pair.generated_key will be created
+  + resource "aws_key_pair" "generated_key" {
+      + arn             = (known after apply)
+      + fingerprint     = (known after apply)
+      + id              = (known after apply)
+      + key_name        = "grdgd678grgegee"
+      + key_name_prefix = (known after apply)
+      + key_pair_id     = (known after apply)
+      + public_key      = (known after apply)
+      + tags_all        = (known after apply)
+    }
+
+  # aws_launch_configuration.launcher will be created
+  + resource "aws_launch_configuration" "launcher" {
+      + arn                         = (known after apply)
+      + associate_public_ip_address = true
+      + ebs_optimized               = (known after apply)
+      + enable_monitoring           = true
+      + iam_instance_profile        = (known after apply)
+      + id                          = (known after apply)
+      + image_id                    = "ami-0e06412e7a2ab14a2"
+      + instance_type               = "t2.micro"
+      + key_name                    = "grdgd678grgegee"
+      + name                        = (known after apply)
+      + name_prefix                 = "launcher-"
+      + security_groups             = (known after apply)
+      + user_data                   = (known after apply)
+
+      + ebs_block_device {
+          + delete_on_termination = (known after apply)
+          + device_name           = (known after apply)
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + no_device             = (known after apply)
+          + snapshot_id           = (known after apply)
+          + throughput            = (known after apply)
+          + volume_size           = (known after apply)
+          + volume_type           = (known after apply)
+        }
+
+      + metadata_options {
+          + http_endpoint               = (known after apply)
+          + http_put_response_hop_limit = (known after apply)
+          + http_tokens                 = (known after apply)
+        }
+
+      + root_block_device {
+          + delete_on_termination = (known after apply)
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + throughput            = (known after apply)
+          + volume_size           = (known after apply)
+          + volume_type           = (known after apply)
+        }
+    }
+
+  # aws_lb.web will be created
+  + resource "aws_lb" "web" {
+      + arn                        = (known after apply)
+      + arn_suffix                 = (known after apply)
+      + desync_mitigation_mode     = "defensive"
+      + dns_name                   = (known after apply)
+      + drop_invalid_header_fields = false
+      + enable_deletion_protection = false
+      + enable_http2               = true
+      + enable_waf_fail_open       = false
+      + id                         = (known after apply)
+      + idle_timeout               = 60
+      + internal                   = false
+      + ip_address_type            = (known after apply)
+      + load_balancer_type         = "application"
+      + name                       = "load-balancer"
+      + security_groups            = (known after apply)
+      + subnets                    = (known after apply)
+      + tags_all                   = (known after apply)
+      + vpc_id                     = (known after apply)
+      + zone_id                    = (known after apply)
+
+      + subnet_mapping {
+          + allocation_id        = (known after apply)
+          + ipv6_address         = (known after apply)
+          + outpost_id           = (known after apply)
+          + private_ipv4_address = (known after apply)
+          + subnet_id            = (known after apply)
+        }
+    }
+
+  # aws_lb_listener.lb-listener will be created
+  + resource "aws_lb_listener" "lb-listener" {
+      + arn               = (known after apply)
+      + id                = (known after apply)
+      + load_balancer_arn = (known after apply)
+      + port              = 80
+      + protocol          = "HTTP"
+      + ssl_policy        = (known after apply)
+      + tags_all          = (known after apply)
+
+      + default_action {
+          + order            = (known after apply)
+          + target_group_arn = (known after apply)
+          + type             = "forward"
+        }
+    }
+
+  # aws_lb_target_group.lb_tg will be created
+  + resource "aws_lb_target_group" "lb_tg" {
+      + arn                                = (known after apply)
+      + arn_suffix                         = (known after apply)
+      + connection_termination             = false
+      + deregistration_delay               = "300"
+      + id                                 = (known after apply)
+      + lambda_multi_value_headers_enabled = false
+      + load_balancing_algorithm_type      = (known after apply)
+      + name                               = "load-balancer-tg"
+      + port                               = 80
+      + preserve_client_ip                 = (known after apply)
+      + protocol                           = "HTTP"
+      + protocol_version                   = (known after apply)
+      + proxy_protocol_v2                  = false
+      + slow_start                         = 0
+      + tags_all                           = (known after apply)
+      + target_type                        = "instance"
+      + vpc_id                             = (known after apply)
+
+      + health_check {
+          + enabled             = true
+          + healthy_threshold   = 2
+          + interval            = 10
+          + matcher             = "200"
+          + path                = "/"
+          + port                = "traffic-port"
+          + protocol            = "HTTP"
+          + timeout             = 2
+          + unhealthy_threshold = 10
+        }
+
+      + stickiness {
+          + cookie_duration = (known after apply)
+          + cookie_name     = (known after apply)
+          + enabled         = (known after apply)
+          + type            = (known after apply)
+        }
+    }
+
+  # aws_route_table.vpc_route will be created
+  + resource "aws_route_table" "vpc_route" {
+      + arn              = (known after apply)
+      + id               = (known after apply)
+      + owner_id         = (known after apply)
+      + propagating_vgws = (known after apply)
+      + route            = [
+          + {
+              + carrier_gateway_id         = ""
+              + cidr_block                 = "0.0.0.0/0"
+              + destination_prefix_list_id = ""
+              + egress_only_gateway_id     = ""
+              + gateway_id                 = (known after apply)
+              + instance_id                = ""
+              + ipv6_cidr_block            = ""
+              + local_gateway_id           = ""
+              + nat_gateway_id             = ""
+              + network_interface_id       = ""
+              + transit_gateway_id         = ""
+              + vpc_endpoint_id            = ""
+              + vpc_peering_connection_id  = ""
+            },
+        ]
+      + tags_all         = (known after apply)
+      + vpc_id           = (known after apply)
+    }
+
+  # aws_route_table_association.vpc_route_assoc[0] will be created
+  + resource "aws_route_table_association" "vpc_route_assoc" {
+      + id             = (known after apply)
+      + route_table_id = (known after apply)
+      + subnet_id      = (known after apply)
+    }
+
+  # aws_route_table_association.vpc_route_assoc[1] will be created
+  + resource "aws_route_table_association" "vpc_route_assoc" {
+      + id             = (known after apply)
+      + route_table_id = (known after apply)
+      + subnet_id      = (known after apply)
+    }
+
+  # aws_security_group.db_sg will be created
+  + resource "aws_security_group" "db_sg" {
+      + arn                    = (known after apply)
+      + description            = "Managed by Terraform"
+      + egress                 = [
+          + {
+              + cidr_blocks      = [
+                  + "10.0.0.0/16",
+                ]
+              + description      = "Allow all outgoing private traffic."
+              + from_port        = 0
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "-1"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 0
+            },
+        ]
+      + id                     = (known after apply)
+      + ingress                = [
+          + {
+              + cidr_blocks      = [
+                  + "10.0.0.0/16",
+                ]
+              + description      = "Allow private SQL."
+              + from_port        = 3306
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "tcp"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 3306
+            },
+        ]
+      + name                   = "db_sg"
+      + name_prefix            = (known after apply)
+      + owner_id               = (known after apply)
+      + revoke_rules_on_delete = false
+      + tags_all               = (known after apply)
+      + vpc_id                 = (known after apply)
+    }
+
+  # aws_security_group.efs_sg will be created
+  + resource "aws_security_group" "efs_sg" {
+      + arn                    = (known after apply)
+      + description            = "Managed by Terraform"
+      + egress                 = [
+          + {
+              + cidr_blocks      = [
+                  + "10.0.0.0/16",
+                ]
+              + description      = "Allow all outgoing private traffic."
+              + from_port        = 0
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "-1"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 0
+            },
+        ]
+      + id                     = (known after apply)
+      + ingress                = [
+          + {
+              + cidr_blocks      = [
+                  + "10.0.0.0/16",
+                ]
+              + description      = "Allow private NFS."
+              + from_port        = 2049
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "tcp"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 2049
+            },
+        ]
+      + name                   = "efs_sg"
+      + name_prefix            = (known after apply)
+      + owner_id               = (known after apply)
+      + revoke_rules_on_delete = false
+      + tags_all               = (known after apply)
+      + vpc_id                 = (known after apply)
+    }
+
+  # aws_security_group.elb_sg will be created
+  + resource "aws_security_group" "elb_sg" {
+      + arn                    = (known after apply)
+      + description            = "Managed by Terraform"
+      + egress                 = [
+          + {
+              + cidr_blocks      = [
+                  + "0.0.0.0/0",
+                ]
+              + description      = "Allow all outgoing traffic."
+              + from_port        = 0
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "-1"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 0
+            },
+        ]
+      + id                     = (known after apply)
+      + ingress                = [
+          + {
+              + cidr_blocks      = [
+                  + "0.0.0.0/0",
+                ]
+              + description      = ""
+              + from_port        = 0
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "-1"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 0
+            },
+        ]
+      + name                   = "elb_sg"
+      + name_prefix            = (known after apply)
+      + owner_id               = (known after apply)
+      + revoke_rules_on_delete = false
+      + tags_all               = (known after apply)
+      + vpc_id                 = (known after apply)
+    }
+
+  # aws_security_group.sg_main will be created
+  + resource "aws_security_group" "sg_main" {
+      + arn                    = (known after apply)
+      + description            = "allow 22 80 443 8080"
+      + egress                 = [
+          + {
+              + cidr_blocks      = [
+                  + "0.0.0.0/0",
+                ]
+              + description      = ""
+              + from_port        = 0
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "-1"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 0
+            },
+        ]
+      + id                     = (known after apply)
+      + ingress                = [
+          + {
+              + cidr_blocks      = [
+                  + "0.0.0.0/0",
+                ]
+              + description      = ""
+              + from_port        = 0
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "-1"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 0
+            },
+        ]
+      + name                   = "aws-sec-group-main"
+      + name_prefix            = (known after apply)
+      + owner_id               = (known after apply)
+      + revoke_rules_on_delete = false
+      + tags_all               = (known after apply)
+      + vpc_id                 = (known after apply)
+    }
+
+  # aws_ssm_parameter.rds_password will be created
+  + resource "aws_ssm_parameter" "rds_password" {
+      + arn         = (known after apply)
+      + data_type   = (known after apply)
+      + description = "Admin password for MySQL"
+      + id          = (known after apply)
+      + key_id      = (known after apply)
+      + name        = "rds-ssm"
+      + tags_all    = (known after apply)
+      + tier        = "Standard"
+      + type        = "SecureString"
+      + value       = (sensitive value)
+      + version     = (known after apply)
+    }
+
+  # aws_subnet.subnets[0] will be created
+  + resource "aws_subnet" "subnets" {
+      + arn                                            = (known after apply)
+      + assign_ipv6_address_on_creation                = false
+      + availability_zone                              = "eu-central-1a"
+      + availability_zone_id                           = (known after apply)
+      + cidr_block                                     = "10.0.0.0/24"
+      + enable_dns64                                   = false
+      + enable_resource_name_dns_a_record_on_launch    = false
+      + enable_resource_name_dns_aaaa_record_on_launch = false
+      + id                                             = (known after apply)
+      + ipv6_cidr_block_association_id                 = (known after apply)
+      + ipv6_native                                    = false
+      + map_public_ip_on_launch                        = true
+      + owner_id                                       = (known after apply)
+      + private_dns_hostname_type_on_launch            = (known after apply)
+      + tags_all                                       = (known after apply)
+      + vpc_id                                         = (known after apply)
+    }
+
+  # aws_subnet.subnets[1] will be created
+  + resource "aws_subnet" "subnets" {
+      + arn                                            = (known after apply)
+      + assign_ipv6_address_on_creation                = false
+      + availability_zone                              = "eu-central-1b"
+      + availability_zone_id                           = (known after apply)
+      + cidr_block                                     = "10.0.1.0/24"
+      + enable_dns64                                   = false
+      + enable_resource_name_dns_a_record_on_launch    = false
+      + enable_resource_name_dns_aaaa_record_on_launch = false
+      + id                                             = (known after apply)
+      + ipv6_cidr_block_association_id                 = (known after apply)
+      + ipv6_native                                    = false
+      + map_public_ip_on_launch                        = true
+      + owner_id                                       = (known after apply)
+      + private_dns_hostname_type_on_launch            = (known after apply)
+      + tags_all                                       = (known after apply)
+      + vpc_id                                         = (known after apply)
+    }
+
+  # aws_vpc.vpc_main will be created
+  + resource "aws_vpc" "vpc_main" {
+      + arn                                  = (known after apply)
+      + cidr_block                           = "10.0.0.0/16"
+      + default_network_acl_id               = (known after apply)
+      + default_route_table_id               = (known after apply)
+      + default_security_group_id            = (known after apply)
+      + dhcp_options_id                      = (known after apply)
+      + enable_classiclink                   = (known after apply)
+      + enable_classiclink_dns_support       = (known after apply)
+      + enable_dns_hostnames                 = true
+      + enable_dns_support                   = true
+      + id                                   = (known after apply)
+      + instance_tenancy                     = "default"
+      + ipv6_association_id                  = (known after apply)
+      + ipv6_cidr_block                      = (known after apply)
+      + ipv6_cidr_block_network_border_group = (known after apply)
+      + main_route_table_id                  = (known after apply)
+      + owner_id                             = (known after apply)
+      + tags_all                             = (known after apply)
+    }
+
+  # random_string.rds_password will be created
+  + resource "random_string" "rds_password" {
+      + id               = (known after apply)
+      + length           = 15
+      + lower            = true
+      + min_lower        = 0
+      + min_numeric      = 0
+      + min_special      = 0
+      + min_upper        = 0
+      + number           = true
+      + override_special = "!#&"
+      + result           = (known after apply)
+      + special          = true
+      + upper            = true
+    }
+
+  # tls_private_key.example will be created
+  + resource "tls_private_key" "example" {
+      + algorithm                  = "RSA"
+      + ecdsa_curve                = "P224"
+      + id                         = (known after apply)
+      + private_key_pem            = (sensitive value)
+      + public_key_fingerprint_md5 = (known after apply)
+      + public_key_openssh         = (known after apply)
+      + public_key_pem             = (known after apply)
+      + rsa_bits                   = 4096
+    }
+
+Plan: 28 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + alb_dns = (known after apply)
+random_string.rds_password: Creating...
+random_string.rds_password: Creation complete after 0s [id=IpFlmgAMc6Ayplf]
+tls_private_key.example: Creating...
+aws_iam_role.ecs-instance-role: Creating...
+aws_efs_file_system.efs: Creating...
+aws_vpc.vpc_main: Creating...
+aws_ssm_parameter.rds_password: Creating...
+aws_ssm_parameter.rds_password: Creation complete after 0s [id=rds-ssm]
+data.aws_ssm_parameter.rds-pass: Reading...
+data.aws_ssm_parameter.rds-pass: Read complete after 0s [id=rds-ssm]
+aws_iam_role.ecs-instance-role: Creation complete after 2s [id=ecs-instance-role]
+aws_iam_role_policy_attachment.ecs-instance-role-attachment: Creating...
+aws_iam_instance_profile.ecs_service_role: Creating...
+aws_iam_role_policy_attachment.ecs-instance-role-attachment: Creation complete after 0s [id=ecs-instance-role-20220303184100773600000003]
+aws_iam_instance_profile.ecs_service_role: Creation complete after 0s [id=terraform-20220303184100631900000002]
+tls_private_key.example: Creation complete after 7s [id=42c49d413f3608da7f1176fd7be57e3cf10b8f47]
+aws_key_pair.generated_key: Creating...
+aws_key_pair.generated_key: Creation complete after 0s [id=grdgd678grgegee]
+aws_efs_file_system.efs: Creation complete after 6s [id=fs-0a2d632fcbfa325eb]
+aws_vpc.vpc_main: Still creating... [10s elapsed]
+aws_vpc.vpc_main: Creation complete after 11s [id=vpc-00fed30ccd915e4b6]
+aws_lb_target_group.lb_tg: Creating...
+aws_security_group.sg_main: Creating...
+aws_security_group.db_sg: Creating...
+aws_subnet.subnets[0]: Creating...
+aws_subnet.subnets[1]: Creating...
+aws_security_group.efs_sg: Creating...
+aws_internet_gateway.igw_main: Creating...
+aws_security_group.elb_sg: Creating...
+aws_lb_target_group.lb_tg: Creation complete after 0s [id=arn:aws:elasticloadbalancing:eu-central-1:082046016299:targetgroup/load-balancer-tg/95932e55973277cf]
+aws_internet_gateway.igw_main: Creation complete after 1s [id=igw-00c14cfff2d495bc8]
+aws_route_table.vpc_route: Creating...
+aws_route_table.vpc_route: Creation complete after 0s [id=rtb-0375e7770874cc7f8]
+aws_security_group.sg_main: Creation complete after 1s [id=sg-096fdfce4b4f78aaa]
+aws_security_group.efs_sg: Creation complete after 2s [id=sg-08d97984605c6051f]
+aws_security_group.db_sg: Creation complete after 2s [id=sg-05105aa4e2e9de0c2]
+aws_security_group.elb_sg: Creation complete after 2s [id=sg-010fcb4c8700362aa]
+aws_subnet.subnets[0]: Still creating... [10s elapsed]
+aws_subnet.subnets[1]: Still creating... [10s elapsed]
+aws_subnet.subnets[1]: Creation complete after 11s [id=subnet-060f7eea3b1e436b7]
+aws_subnet.subnets[0]: Creation complete after 11s [id=subnet-067ee2c0653dd2cde]
+aws_efs_mount_target.efs_mount[1]: Creating...
+aws_db_subnet_group.sub_db_sg: Creating...
+aws_route_table_association.vpc_route_assoc[1]: Creating...
+aws_efs_mount_target.efs_mount[0]: Creating...
+aws_route_table_association.vpc_route_assoc[0]: Creating...
+aws_lb.web: Creating...
+aws_route_table_association.vpc_route_assoc[0]: Creation complete after 0s [id=rtbassoc-04bb84798bcc14fff]
+aws_route_table_association.vpc_route_assoc[1]: Creation complete after 0s [id=rtbassoc-0758937c06ec77eea]
+aws_db_subnet_group.sub_db_sg: Creation complete after 0s [id=subnet-db-sg]
+aws_db_instance.db: Creating...
+aws_efs_mount_target.efs_mount[1]: Still creating... [10s elapsed]
+aws_efs_mount_target.efs_mount[0]: Still creating... [10s elapsed]
+aws_lb.web: Still creating... [10s elapsed]
+aws_db_instance.db: Still creating... [10s elapsed]
+aws_efs_mount_target.efs_mount[1]: Still creating... [20s elapsed]
+aws_efs_mount_target.efs_mount[0]: Still creating... [20s elapsed]
+aws_lb.web: Still creating... [20s elapsed]
+aws_db_instance.db: Still creating... [20s elapsed]
+aws_efs_mount_target.efs_mount[1]: Still creating... [30s elapsed]
+aws_efs_mount_target.efs_mount[0]: Still creating... [30s elapsed]
+aws_lb.web: Still creating... [30s elapsed]
+aws_db_instance.db: Still creating... [30s elapsed]
+aws_efs_mount_target.efs_mount[1]: Still creating... [40s elapsed]
+aws_efs_mount_target.efs_mount[0]: Still creating... [40s elapsed]
+aws_lb.web: Still creating... [40s elapsed]
+aws_db_instance.db: Still creating... [40s elapsed]
+aws_efs_mount_target.efs_mount[1]: Still creating... [50s elapsed]
+aws_efs_mount_target.efs_mount[0]: Still creating... [50s elapsed]
+aws_lb.web: Still creating... [50s elapsed]
+aws_db_instance.db: Still creating... [50s elapsed]
+aws_efs_mount_target.efs_mount[1]: Still creating... [1m0s elapsed]
+aws_efs_mount_target.efs_mount[0]: Still creating... [1m0s elapsed]
+aws_lb.web: Still creating... [1m0s elapsed]
+aws_db_instance.db: Still creating... [1m0s elapsed]
+aws_efs_mount_target.efs_mount[1]: Still creating... [1m10s elapsed]
+aws_efs_mount_target.efs_mount[0]: Still creating... [1m10s elapsed]
+aws_lb.web: Still creating... [1m10s elapsed]
+aws_db_instance.db: Still creating... [1m10s elapsed]
+aws_efs_mount_target.efs_mount[1]: Still creating... [1m20s elapsed]
+aws_efs_mount_target.efs_mount[0]: Still creating... [1m20s elapsed]
+aws_lb.web: Still creating... [1m20s elapsed]
+aws_db_instance.db: Still creating... [1m20s elapsed]
+aws_efs_mount_target.efs_mount[1]: Creation complete after 1m23s [id=fsmt-0aa61d7c922c764a1]
+aws_efs_mount_target.efs_mount[0]: Creation complete after 1m23s [id=fsmt-0197198fd8368ca1a]
+aws_lb.web: Still creating... [1m30s elapsed]
+aws_db_instance.db: Still creating... [1m30s elapsed]
+aws_lb.web: Still creating... [1m40s elapsed]
+aws_db_instance.db: Still creating... [1m40s elapsed]
+aws_lb.web: Still creating... [1m50s elapsed]
+aws_db_instance.db: Still creating... [1m50s elapsed]
+aws_lb.web: Still creating... [2m0s elapsed]
+aws_db_instance.db: Still creating... [2m0s elapsed]
+aws_lb.web: Creation complete after 2m1s [id=arn:aws:elasticloadbalancing:eu-central-1:082046016299:loadbalancer/app/load-balancer/767a4b231a909d1d]
+aws_lb_listener.lb-listener: Creating...
+aws_lb_listener.lb-listener: Creation complete after 0s [id=arn:aws:elasticloadbalancing:eu-central-1:082046016299:listener/app/load-balancer/767a4b231a909d1d/11b71009f6731392]
+aws_db_instance.db: Still creating... [2m10s elapsed]
+aws_db_instance.db: Still creating... [2m20s elapsed]
+aws_db_instance.db: Still creating... [2m30s elapsed]
+aws_db_instance.db: Still creating... [2m40s elapsed]
+aws_db_instance.db: Still creating... [2m50s elapsed]
+aws_db_instance.db: Still creating... [3m0s elapsed]
+aws_db_instance.db: Still creating... [3m10s elapsed]
+aws_db_instance.db: Still creating... [3m20s elapsed]
+aws_db_instance.db: Still creating... [3m30s elapsed]
+aws_db_instance.db: Still creating... [3m40s elapsed]
+aws_db_instance.db: Still creating... [3m50s elapsed]
+aws_db_instance.db: Creation complete after 3m53s [id=db]
+data.template_file.cloudinit_main: Reading...
+data.template_file.cloudinit_main: Read complete after 0s [id=7a0eeec44fa0952473669ac41c2ca70968b500ad7067171945e8931972cf552f]
+data.template_cloudinit_config.cloudinit_config: Reading...
+data.template_cloudinit_config.cloudinit_config: Read complete after 0s [id=2245876638]
+aws_launch_configuration.launcher: Creating...
+aws_launch_configuration.launcher: Creation complete after 0s [id=launcher-20220303184513528500000004]
+aws_autoscaling_group.autoscale_group: Creating...
+aws_autoscaling_group.autoscale_group: Still creating... [10s elapsed]
+aws_autoscaling_group.autoscale_group: Still creating... [20s elapsed]
+aws_autoscaling_group.autoscale_group: Still creating... [30s elapsed]
+aws_autoscaling_group.autoscale_group: Creation complete after 37s [id=autoscale_group-launcher-20220303184513528500000004]
+╷
+│ Warning: Argument is deprecated
+│
+│   with aws_db_instance.db,
+│   on 1.tf line 354, in resource "aws_db_instance" "db":
+│  354:   name = var.db_name
+│
+│ Use db_name instead
+│
+│ (and 2 more similar warnings elsewhere)
+╵
+
+Apply complete! Resources: 28 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+alb_dns = "load-balancer-11987906.eu-central-1.elb.amazonaws.com"
+root@instance-20191022-2038:~/epamaws$ terraform apply -auto-approve
+tls_private_key.example: Refreshing state... [id=42c49d413f3608da7f1176fd7be57e3cf10b8f47]
+random_string.rds_password: Refreshing state... [id=IpFlmgAMc6Ayplf]
+aws_efs_file_system.efs: Refreshing state... [id=fs-0a2d632fcbfa325eb]
+aws_key_pair.generated_key: Refreshing state... [id=grdgd678grgegee]
+aws_vpc.vpc_main: Refreshing state... [id=vpc-00fed30ccd915e4b6]
+aws_iam_role.ecs-instance-role: Refreshing state... [id=ecs-instance-role]
+aws_ssm_parameter.rds_password: Refreshing state... [id=rds-ssm]
+aws_security_group.efs_sg: Refreshing state... [id=sg-08d97984605c6051f]
+aws_security_group.db_sg: Refreshing state... [id=sg-05105aa4e2e9de0c2]
+aws_subnet.subnets[0]: Refreshing state... [id=subnet-067ee2c0653dd2cde]
+aws_subnet.subnets[1]: Refreshing state... [id=subnet-060f7eea3b1e436b7]
+aws_security_group.elb_sg: Refreshing state... [id=sg-010fcb4c8700362aa]
+aws_security_group.sg_main: Refreshing state... [id=sg-096fdfce4b4f78aaa]
+aws_internet_gateway.igw_main: Refreshing state... [id=igw-00c14cfff2d495bc8]
+aws_lb_target_group.lb_tg: Refreshing state... [id=arn:aws:elasticloadbalancing:eu-central-1:082046016299:targetgroup/load-balancer-tg/95932e55973277cf]
+aws_route_table.vpc_route: Refreshing state... [id=rtb-0375e7770874cc7f8]
+aws_efs_mount_target.efs_mount[1]: Refreshing state... [id=fsmt-0aa61d7c922c764a1]
+aws_db_subnet_group.sub_db_sg: Refreshing state... [id=subnet-db-sg]
+aws_efs_mount_target.efs_mount[0]: Refreshing state... [id=fsmt-0197198fd8368ca1a]
+aws_lb.web: Refreshing state... [id=arn:aws:elasticloadbalancing:eu-central-1:082046016299:loadbalancer/app/load-balancer/767a4b231a909d1d]
+aws_route_table_association.vpc_route_assoc[1]: Refreshing state... [id=rtbassoc-0758937c06ec77eea]
+aws_route_table_association.vpc_route_assoc[0]: Refreshing state... [id=rtbassoc-04bb84798bcc14fff]
+aws_lb_listener.lb-listener: Refreshing state... [id=arn:aws:elasticloadbalancing:eu-central-1:082046016299:listener/app/load-balancer/767a4b231a909d1d/11b71009f6731392]
+aws_db_instance.db: Refreshing state... [id=db]
+aws_iam_instance_profile.ecs_service_role: Refreshing state... [id=terraform-20220303184100631900000002]
+aws_iam_role_policy_attachment.ecs-instance-role-attachment: Refreshing state... [id=ecs-instance-role-20220303184100773600000003]
+aws_launch_configuration.launcher: Refreshing state... [id=launcher-20220303184513528500000004]
+aws_autoscaling_group.autoscale_group: Refreshing state... [id=autoscale_group-launcher-20220303184513528500000004]
+
+Note: Objects have changed outside of Terraform
+
+Terraform detected the following changes made outside of Terraform since the
+last "terraform apply":
+
+  # aws_autoscaling_group.autoscale_group has changed
+  ~ resource "aws_autoscaling_group" "autoscale_group" {
+      + enabled_metrics           = []
+        id                        = "autoscale_group-launcher-20220303184513528500000004"
+      + load_balancers            = []
+        name                      = "autoscale_group-launcher-20220303184513528500000004"
+      + suspended_processes       = []
+      + termination_policies      = []
+        # (20 unchanged attributes hidden)
+    }
+
+  # aws_db_instance.db has changed
+  ~ resource "aws_db_instance" "db" {
+      + enabled_cloudwatch_logs_exports       = []
+        id                                    = "db"
+        name                                  = "wp_db"
+      + security_group_names                  = []
+      + tags                                  = {}
+        # (45 unchanged attributes hidden)
+    }
+
+  # aws_db_subnet_group.sub_db_sg has changed
+  ~ resource "aws_db_subnet_group" "sub_db_sg" {
+        id          = "subnet-db-sg"
+        name        = "subnet-db-sg"
+      + tags        = {}
+        # (4 unchanged attributes hidden)
+    }
+
+  # aws_efs_file_system.efs has changed
+  ~ resource "aws_efs_file_system" "efs" {
+        id                              = "fs-0a2d632fcbfa325eb"
+      ~ number_of_mount_targets         = 0 -> 2
+        tags                            = {
+            "Name" = "efs_mount_point"
+        }
+        # (10 unchanged attributes hidden)
+    }
+
+  # aws_iam_instance_profile.ecs_service_role has changed
+  ~ resource "aws_iam_instance_profile" "ecs_service_role" {
+        id          = "terraform-20220303184100631900000002"
+        name        = "terraform-20220303184100631900000002"
+      + tags        = {}
+        # (6 unchanged attributes hidden)
+    }
+
+  # aws_iam_role.ecs-instance-role has changed
+  ~ resource "aws_iam_role" "ecs-instance-role" {
+        id                    = "ecs-instance-role"
+      ~ managed_policy_arns   = [
+          + "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role",
+        ]
+        name                  = "ecs-instance-role"
+      + tags                  = {}
+        # (8 unchanged attributes hidden)
+
+        # (1 unchanged block hidden)
+    }
+
+  # aws_internet_gateway.igw_main has changed
+  ~ resource "aws_internet_gateway" "igw_main" {
+        id       = "igw-00c14cfff2d495bc8"
+      + tags     = {}
+        # (4 unchanged attributes hidden)
+    }
+
+  # aws_key_pair.generated_key has changed
+  ~ resource "aws_key_pair" "generated_key" {
+        id          = "grdgd678grgegee"
+      + tags        = {}
+        # (6 unchanged attributes hidden)
+    }
+
+  # aws_launch_configuration.launcher has changed
+  ~ resource "aws_launch_configuration" "launcher" {
+        id                               = "launcher-20220303184513528500000004"
+        name                             = "launcher-20220303184513528500000004"
+      + vpc_classic_link_security_groups = []
+        # (11 unchanged attributes hidden)
+    }
+
+  # aws_lb.web has changed
+  ~ resource "aws_lb" "web" {
+        id                         = "arn:aws:elasticloadbalancing:eu-central-1:082046016299:loadbalancer/app/load-balancer/767a4b231a909d1d"
+        name                       = "load-balancer"
+      + tags                       = {}
+        # (17 unchanged attributes hidden)
+
+
+        # (3 unchanged blocks hidden)
+    }
+
+  # aws_lb_listener.lb-listener has changed
+  ~ resource "aws_lb_listener" "lb-listener" {
+        id                = "arn:aws:elasticloadbalancing:eu-central-1:082046016299:listener/app/load-balancer/767a4b231a909d1d/11b71009f6731392"
+      + tags              = {}
+        # (5 unchanged attributes hidden)
+
+        # (1 unchanged block hidden)
+    }
+
+  # aws_lb_target_group.lb_tg has changed
+  ~ resource "aws_lb_target_group" "lb_tg" {
+        id                                 = "arn:aws:elasticloadbalancing:eu-central-1:082046016299:targetgroup/load-balancer-tg/95932e55973277cf"
+        name                               = "load-balancer-tg"
+      + tags                               = {}
+        # (14 unchanged attributes hidden)
+
+
+        # (2 unchanged blocks hidden)
+    }
+
+  # aws_route_table.vpc_route has changed
+  ~ resource "aws_route_table" "vpc_route" {
+        id               = "rtb-0375e7770874cc7f8"
+      + tags             = {}
+        # (6 unchanged attributes hidden)
+    }
+
+  # aws_security_group.db_sg has changed
+  ~ resource "aws_security_group" "db_sg" {
+        id                     = "sg-05105aa4e2e9de0c2"
+        name                   = "db_sg"
+      + tags                   = {}
+        # (8 unchanged attributes hidden)
+    }
+
+  # aws_security_group.efs_sg has changed
+  ~ resource "aws_security_group" "efs_sg" {
+        id                     = "sg-08d97984605c6051f"
+        name                   = "efs_sg"
+      + tags                   = {}
+        # (8 unchanged attributes hidden)
+    }
+
+  # aws_security_group.elb_sg has changed
+  ~ resource "aws_security_group" "elb_sg" {
+        id                     = "sg-010fcb4c8700362aa"
+        name                   = "elb_sg"
+      + tags                   = {}
+        # (8 unchanged attributes hidden)
+    }
+
+  # aws_security_group.sg_main has changed
+  ~ resource "aws_security_group" "sg_main" {
+        id                     = "sg-096fdfce4b4f78aaa"
+        name                   = "aws-sec-group-main"
+      + tags                   = {}
+        # (8 unchanged attributes hidden)
+    }
+
+  # aws_ssm_parameter.rds_password has changed
+  ~ resource "aws_ssm_parameter" "rds_password" {
+        id          = "rds-ssm"
+        name        = "rds-ssm"
+      + tags        = {}
+        # (9 unchanged attributes hidden)
+    }
+
+  # aws_subnet.subnets[0] has changed
+  ~ resource "aws_subnet" "subnets" {
+        id                                             = "subnet-067ee2c0653dd2cde"
+      + tags                                           = {}
+        # (15 unchanged attributes hidden)
+    }
+
+  # aws_subnet.subnets[1] has changed
+  ~ resource "aws_subnet" "subnets" {
+        id                                             = "subnet-060f7eea3b1e436b7"
+      + tags                                           = {}
+        # (15 unchanged attributes hidden)
+    }
+
+  # aws_vpc.vpc_main has changed
+  ~ resource "aws_vpc" "vpc_main" {
+        id                               = "vpc-00fed30ccd915e4b6"
+      + tags                             = {}
+        # (16 unchanged attributes hidden)
+    }
+
+
+Unless you have made equivalent changes to your configuration, or ignored the
+relevant attributes using ignore_changes, the following plan may include
+actions to undo or respond to these changes.
+
+───────────────────────────────────────────────────────────────────────────────
+
+Terraform used the selected providers to generate the following execution plan.
+Resource actions are indicated with the following symbols:
+  ~ update in-place
+
+Terraform will perform the following actions:
+
+  # aws_autoscaling_group.autoscale_group will be updated in-place
+  ~ resource "aws_autoscaling_group" "autoscale_group" {
+        id                        = "autoscale_group-launcher-20220303184513528500000004"
+      ~ metrics_granularity       = "1Minute" -> "5Minute"
+        name                      = "autoscale_group-launcher-20220303184513528500000004"
+        # (23 unchanged attributes hidden)
+    }
+
+Plan: 0 to add, 1 to change, 0 to destroy.
+aws_autoscaling_group.autoscale_group: Modifying... [id=autoscale_group-launcher-20220303184513528500000004]
+aws_autoscaling_group.autoscale_group: Modifications complete after 0s [id=autoscale_group-launcher-20220303184513528500000004]
+╷
+│ Warning: Argument is deprecated
+│
+│   with aws_db_instance.db,
+│   on 1.tf line 354, in resource "aws_db_instance" "db":
+│  354:   name = var.db_name
+│
+│ Use db_name instead
+│
+│ (and one more similar warning elsewhere)
+╵
+
+Apply complete! Resources: 0 added, 1 changed, 0 destroyed.
+
+Outputs:
+
+alb_dns = "load-balancer-11987906.eu-central-1.elb.amazonaws.com"
