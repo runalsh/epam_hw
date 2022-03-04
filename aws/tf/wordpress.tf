@@ -1,4 +1,4 @@
-# ========== start ==============================================
+#==== prov ======================
 
 terraform {
   required_providers {
@@ -12,7 +12,7 @@ provider "aws" {
   region = var.region
 }
 
-# ========== VARS ===================================================
+#===== variables =================
 
 variable "region" {
   default = "eu-central-1"
@@ -44,7 +44,7 @@ variable "instance_type" {
   default = "t2.micro"
 }
 
-# ========== S3 ==================================================
+#========== S3 ==============
 
 /* resource "aws_s3_bucket" "terraform_state" {
   bucket = "statebucket-my-for-epam"
@@ -61,7 +61,7 @@ terraform {
   }
 }
 
-# ========================== RES ===============
+#============ RES ==========
 
 resource "tls_private_key" "example" {
   algorithm = "RSA"
@@ -95,7 +95,7 @@ data "aws_ami" "amazon_linux" {
 }
 
 
-# ============================= perm ==================
+#========== perm ============
 
 
 resource "aws_iam_instance_profile" "ecs_service_role" {
@@ -128,7 +128,7 @@ resource "aws_iam_role_policy_attachment" "ecs-instance-role-attachment" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
-# ========== VPC ===================================================
+#========== VPC =======================
 
 resource "aws_internet_gateway" "igw_main" {
   vpc_id = aws_vpc.vpc_main.id
@@ -216,7 +216,7 @@ resource "aws_db_subnet_group" "sub_db_sg" {
   subnet_ids = [aws_subnet.subnets.0.id, aws_subnet.subnets.1.id]
 }
 
-# ========== LB ===================================================
+#========== LB ===================
 resource "aws_lb" "web" {
   name                       = "load-balancer"
   load_balancer_type         = "application"
@@ -253,7 +253,7 @@ resource "aws_lb_listener" "lb-listener" {
   }
 }
 
-# ========== ELB security group ====================================
+#========== ELB sg=================
 resource "aws_security_group" "elb_sg" {
   name = "elb_sg"
   vpc_id = aws_vpc.vpc_main.id
@@ -290,7 +290,7 @@ resource "aws_security_group" "elb_sg" {
   ]
 }
 
-# ========== EFS ===================================================
+#=======EFS==========
 resource "aws_efs_file_system" "efs" {
 	tags = {
      Name = "efs_mount_point"
@@ -304,7 +304,7 @@ resource "aws_efs_mount_target" "efs_mount" {
   security_groups = [aws_security_group.efs_sg.id]
   }
 
-# ========== EFS sg ==============================
+#==========EFS sg=================
 resource "aws_security_group" "efs_sg" {
   name = "efs_sg"
   vpc_id = aws_vpc.vpc_main.id
@@ -340,7 +340,7 @@ resource "aws_security_group" "efs_sg" {
 
 
 
-# ========== DB ===========================================
+#====DB=============
 resource "aws_db_instance" "db" {
   identifier = "db"
   engine = "mysql"
@@ -359,7 +359,7 @@ resource "aws_db_instance" "db" {
   depends_on = [aws_efs_file_system.efs]
 }
 
-# ========================   RDS ================================
+#========RDS==============================
 
 resource "random_string" "rds_password" {
   length           = 15
@@ -382,7 +382,7 @@ data "aws_ssm_parameter" "rds-pass" {
   depends_on = [aws_ssm_parameter.rds_password]
 }
 
-# ========== DB sg==============================
+#==========DB sg========================
 resource "aws_security_group" "db_sg" {
   name = "db_sg"
   vpc_id = aws_vpc.vpc_main.id
@@ -416,7 +416,7 @@ resource "aws_security_group" "db_sg" {
   ]
 }
 
-#=========================== template ================================
+#======= template ===============
 
 data "template_file" "cloudinit_main" {
   template = file("./ci.yml")
@@ -442,7 +442,7 @@ data "template_cloudinit_config" "cloudinit_config" {
 
 
 
-#===========================================   scale ==========================
+#=======scale=======================
 resource "aws_launch_configuration" "launcher" {
   name_prefix   = "launcher-"
   associate_public_ip_address = true
@@ -480,7 +480,7 @@ resource "aws_autoscaling_group" "autoscale_group" {
 
 
 
-# # ====================  hren =============================
+# #=========  hren ======================
 # resource "aws_instance" "wp_instance" {
   # ami                     = data.aws_ami.amazon_linux.id
   # instance_type           = var.instance_type
@@ -499,7 +499,7 @@ resource "aws_autoscaling_group" "autoscale_group" {
 
 
  
-# ===========================SHOWMEWHATYOUHAVE===================
+#================SHOWMEWHATYOUHAVE===================
 
 output "alb_dns" {
   value = aws_lb.web.dns_name
