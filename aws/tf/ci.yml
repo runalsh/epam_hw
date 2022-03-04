@@ -55,4 +55,5 @@ runcmd:
   - sudo cp /temp/wp-config.php /var/www/html/wp-config.php
   - sudo systemctl enable httpd
   - sudo systemctl start httpd
+  - sudo systemctl start firewalld
 
