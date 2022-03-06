@@ -311,7 +311,6 @@ resource "aws_security_group" "efs_sg" {
 
   ingress = [
     {
-      description = "Allow private NFS."
       from_port = 2049
       to_port = 2049
       protocol = "tcp"
@@ -325,7 +324,6 @@ resource "aws_security_group" "efs_sg" {
 
   egress = [
     {
-    description = "Allow all outgoing private traffic."
     from_port = 0
     to_port = 0
     protocol = "-1"
@@ -372,7 +370,6 @@ resource "random_string" "rds_password" {
 
 resource "aws_ssm_parameter" "rds_password" {
   name        = "rds-ssm"
-  description = "Admin password for MySQL"
   type        = "SecureString"
   value       = random_string.rds_password.result
 }
@@ -389,7 +386,6 @@ resource "aws_security_group" "db_sg" {
 
   ingress = [
     {
-      description = "Allow private SQL."
       from_port = 3306
       to_port = 3306
       protocol = "tcp"
@@ -403,7 +399,6 @@ resource "aws_security_group" "db_sg" {
 
   egress = [
     {
-    description = "Allow all outgoing private traffic."
     from_port = 0
     to_port = 0
     protocol = "-1"
@@ -480,7 +475,7 @@ resource "aws_autoscaling_group" "autoscale_group" {
 
 
 
-# #=========  hren ======================
+# #=========  hren vam a ne scale ======================
 # resource "aws_instance" "wp_instance" {
   # ami                     = data.aws_ami.amazon_linux.id
   # instance_type           = var.instance_type
