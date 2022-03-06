@@ -258,22 +258,22 @@ resource "aws_security_group" "elb_sg" {
   name = "elb_sg"
   vpc_id = aws_vpc.vpc_main.id
 
-   # dynamic "ingress" {
-      # for_each = ["80","443","8080"]
-    # content {
-      # from_port        = ingress.value
-      # to_port          = ingress.value
-      # protocol         = "tcp"
-      # cidr_blocks      = ["0.0.0.0/0"]
-  # }
-# } 
-
-  ingress {
-    cidr_blocks = ["0.0.0.0/0"]
-    from_port   = 0
-    protocol    = "-1"
-    to_port     = 0
+   dynamic "ingress" {
+      for_each = ["80","443","8080"]
+    content {
+      from_port        = ingress.value
+      to_port          = ingress.value
+      protocol         = "tcp"
+      cidr_blocks      = ["0.0.0.0/0"]
   }
+} 
+
+ # ingress {
+   # cidr_blocks = ["0.0.0.0/0"]
+  #  from_port   = 0
+   # protocol    = "-1"
+   # to_port     = 0
+ # }
 
   egress = [
     {
