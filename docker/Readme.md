@@ -1,1 +1,5 @@
-run docker-compose up
+cd docker_homework
+
+
+docker-compose up
+
