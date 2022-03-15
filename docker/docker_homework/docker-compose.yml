@@ -1,0 +1,40 @@
+version: '3.3'
+services: 
+    database:
+        container_name: database
+        build:
+            context: ./db
+        ports: 
+            - 5432:5432
+        networks:
+           - default  
+    
+    frontendnginxnpm:
+        container_name: frontend
+        build:
+            context: ./frontend
+        ports: 
+            - 3000:8080
+        depends_on: 
+            - backenddjango
+            - database
+        # networks:
+            # - default      
+            
+            
+    backenddjango:
+        container_name: backend
+        build: 
+            context: ./lib_catalog
+        depends_on:
+            - database
+        ports:
+            - 8000:8000
+        networks:
+            - default
+        command: /bin/sh -c "python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
+        
+networks:
+    default:
+        driver: bridge
+   
