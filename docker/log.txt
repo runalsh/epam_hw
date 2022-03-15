@@ -1,0 +1,119 @@
+root@instance-20191022-2038:~/docker/docker_homework$ docker-compose build && docker-compose up
+Building database
+Step 1/4 : FROM postgres:13-alpine
+ ---> 69a396cfd3fd
+Step 2/4 : ENV POSTGRES_DB=django
+ ---> Using cache
+ ---> 2b5d674ce35d
+Step 3/4 : ENV POSTGRES_USER=django
+ ---> Using cache
+ ---> d89a59cef499
+Step 4/4 : ENV POSTGRES_PASSWORD=django
+ ---> Using cache
+ ---> 2d8e3bc9c3f8
+
+Successfully built 2d8e3bc9c3f8
+Successfully tagged docker_homework_database:latest
+Building backenddjango
+Step 1/7 : FROM python:3.7-slim as base
+ ---> 67290a4b6a03
+Step 2/7 : ENV PYTHONDONTWRITEBYTECODE=1
+ ---> Using cache
+ ---> c66af8d16f7a
+Step 3/7 : ENV PYTHONUNBUFFERED=1
+ ---> Using cache
+ ---> 255fae1a516b
+Step 4/7 : WORKDIR /app
+ ---> Using cache
+ ---> 3e6cd1ce793b
+Step 5/7 : COPY . .
+ ---> Using cache
+ ---> f552b370e700
+Step 6/7 : RUN pip3 install --no-cache-dir -r requirements.txt
+ ---> Using cache
+ ---> 66cbfcc151b8
+Step 7/7 : RUN sed -i "s/ALLOWED_HOSTS = \[\]/ALLOWED_HOSTS = \['*'\]/g" /app/lib_catalog/settings.py
+ ---> Using cache
+ ---> db844bc7bece
+
+Successfully built db844bc7bece
+Successfully tagged docker_homework_backenddjango:latest
+Building frontendnginxnpm
+Step 1/9 : FROM node:12-alpine as base
+ ---> 1b156b4c3ee8
+Step 2/9 : WORKDIR /node
+ ---> Using cache
+ ---> 5250d40d5ade
+Step 3/9 : COPY package.json .
+ ---> Using cache
+ ---> d5bb12aa7664
+Step 4/9 : RUN npm install
+ ---> Using cache
+ ---> e23d7d977526
+Step 5/9 : COPY . /node
+ ---> Using cache
+ ---> d1be759d3dd7
+Step 6/9 : RUN npm run build
+ ---> Using cache
+ ---> 6e044eed9404
+
+Step 7/9 : FROM nginx:1.21.6-alpine
+ ---> bef258acf10d
+Step 8/9 : COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+ ---> Using cache
+ ---> eea78d2a458f
+Step 9/9 : COPY --from=base /node/build /usr/share/nginx/html
+ ---> Using cache
+ ---> 476614742245
+
+Successfully built 476614742245
+Successfully tagged docker_homework_frontendnginxnpm:latest
+Starting database ... done
+Starting backend  ... done
+Starting frontend ... done
+Attaching to database, backend, frontend
+frontend            | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+frontend            | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+frontend            | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+frontend            | 10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+database            |
+database            | PostgreSQL Database directory appears to contain a database; Skipping initialization
+database            |
+database            | 2022-03-15 17:24:16.127 UTC [1] LOG:  starting PostgreSQL 13.6 on x86_64-pc-linux-musl, compiled by gcc (Alpine 10.3.1_git20211027) 10.3.1 20211027, 64-bit
+database            | 2022-03-15 17:24:16.127 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+database            | 2022-03-15 17:24:16.127 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+database            | 2022-03-15 17:24:16.135 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+database            | 2022-03-15 17:24:16.225 UTC [21] LOG:  database system was shut down at 2022-03-15 17:23:48 UTC
+database            | 2022-03-15 17:24:16.241 UTC [1] LOG:  database system is ready to accept connections
+frontend            | 10-listen-on-ipv6-by-default.sh: info: /etc/nginx/conf.d/default.conf differs from the packaged version
+frontend            | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+frontend            | 2022/03/15 17:24:18 [notice] 1#1: using the "epoll" event method
+frontend            | 2022/03/15 17:24:18 [notice] 1#1: nginx/1.21.6
+frontend            | 2022/03/15 17:24:18 [notice] 1#1: built by gcc 10.3.1 20211027 (Alpine 10.3.1_git20211027)
+frontend            | 2022/03/15 17:24:18 [notice] 1#1: OS: Linux 5.10.0-11-amd64
+frontend            | 2022/03/15 17:24:18 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+frontend            | 2022/03/15 17:24:18 [notice] 1#1: start worker processes
+frontend            | 2022/03/15 17:24:18 [notice] 1#1: start worker process 33
+frontend            | 2022/03/15 17:24:18 [notice] 1#1: start worker process 34
+frontend            | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+frontend            | /docker-entrypoint.sh: Configuration complete; ready for start up
+backend             | Operations to perform:
+backend             |   Apply all migrations: admin, auth, catalog, contenttypes, sessions
+backend             | Running migrations:
+backend             |   No migrations to apply.
+backend             | Watching for file changes with StatReloader
+backend             | Performing system checks...
+backend             |
+backend             | System check identified no issues (0 silenced).
+backend             | March 15, 2022 - 17:24:24
+backend             | Django version 3.0.7, using settings 'lib_catalog.settings'
+backend             | Starting development server at http://0.0.0.0:8000/
+backend             | Quit the server with CONTROL-C.
+frontend            | 172.23.0.1 - - [15/Mar/2022:17:24:29 +0000] "GET /books/card/2 HTTP/1.1" 200 2280 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/20100101 Firefox/99.0" "-"
+frontend            | 172.23.0.1 - - [15/Mar/2022:17:24:29 +0000] "GET /static/css/2.3661fc73.chunk.css HTTP/1.1" 200 147491 "http://localhost:3000/books/card/2" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/2010010           1 Firefox/99.0" "-"
+frontend            | 172.23.0.1 - - [15/Mar/2022:17:24:29 +0000] "GET /static/css/main.d39ddc96.chunk.css HTTP/1.1" 200 1208 "http://localhost:3000/books/card/2" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/201001           01 Firefox/99.0" "-"
+frontend            | 172.23.0.1 - - [15/Mar/2022:17:24:29 +0000] "GET /static/js/main.e8ac67f4.chunk.js HTTP/1.1" 200 54197 "http://localhost:3000/books/card/2" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/2010010           1 Firefox/99.0" "-"
+frontend            | 172.23.0.1 - - [15/Mar/2022:17:24:29 +0000] "GET /static/js/2.fb189008.chunk.js HTTP/1.1" 200 281912 "http://localhost:3000/books/card/2" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/20100101            Firefox/99.0" "-"
+backend             | [15/Mar/2022 17:24:29] "GET /api/v1/lib/book/2/ HTTP/1.1" 200 452
+frontend            | 172.23.0.1 - - [15/Mar/2022:17:24:29 +0000] "GET /logo192.png HTTP/1.1" 200 5347 "http://localhost:3000/books/card/2" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/20100101 Firefox/99.0" "-"
+frontend            | 172.23.0.1 - - [15/Mar/2022:17:24:29 +0000] "GET /favicon.ico HTTP/1.1" 200 3150 "http://localhost:3000/books/card/2" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/20100101 Firefox/99.0" "-"
