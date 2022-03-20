@@ -20,8 +20,8 @@ services:
         depends_on: 
             - backenddjango
             - database
-        # networks:
-            # - default      
+        networks:
+            - public      
             
             
     backenddjango:
@@ -38,5 +38,5 @@ services:
         
 networks:
     default:
-        driver: bridge
+    public:    
    
