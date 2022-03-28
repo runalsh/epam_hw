@@ -47,7 +47,7 @@ variable "instance_type" {
 #========== S3 ==============
 
 /* resource "aws_s3_bucket" "terraform_state" {
-  bucket = "statebucket-my-for-epam"
+  bucket = "statebucket-my-for-epamq"
   lifecycle {
     prevent_destroy = true
   }
@@ -55,8 +55,8 @@ variable "instance_type" {
 
 terraform {
   backend "s3" {
-    bucket = "statebucket-my-for-epam"
-    key    = "statebucket-my-for-epam/terraform.tfstate"
+    bucket = "statebucket-my-for-epamq"
+    key    = "statebucket-my-for-epamq/terraform.tfstate"
     region = "eu-central-1"
   }
 }
