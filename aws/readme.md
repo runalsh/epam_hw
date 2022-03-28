@@ -1,10 +1,6 @@
 path "tf" = terraform files with cloudinit
 
-cd tf
-
-terraform init
-
-terraform apply
+cd tf & terraform init & terraform apply
 
 
 
