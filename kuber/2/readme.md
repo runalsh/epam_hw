@@ -45,3 +45,6 @@ spec:
              port: 
                 number: 80
 ```
+
+* Full log of working with task - log.txt
+* Some screens from dashboard - pres.pptx
