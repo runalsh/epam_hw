@@ -32,6 +32,9 @@ metadata:
   name: ingress-web
   annotations:
     kubernetes.io/ingress.class: "nginx"
+    ingress.nginx.kubernetes.io/canary-by-header: "canary:always"
+    ingress.nginx.kubernetes.io/canary: "true"
+    ingress.nginx.kubernetes.io/canary-weight: "5"
 spec:
   rules:
   - http:
