@@ -1,4 +1,3 @@
-* Homework
 * In Minikube in namespace kube-system, there are many different pods running. Your task is to figure out who creates them, and who makes sure they are running (restores them after deletion)
 ```
 PS C:\Users\Admin\desktop\2> kubectl describe pods -n kube-system | Select-String "Controlled By", "^Name:"
