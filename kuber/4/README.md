@@ -1,84 +1,37 @@
-# Task 4
-### Check what I can do
-```bash
-kubectl auth can-i create deployments --namespace kube-system
+* Create users deploy_view and deploy_edit. Give the user deploy_view rights only to view deployments, pods. Give the user deploy_edit full rights to the objects deployments, pods. 
 ```
-### Sample output
-```bash
-yes
+PS C:\Users\Admin\desktop\4> F:\VB\OpenSSL-Win64\bin\openssl genrsa -out deploy_view.key 2048
+PS C:\Users\Admin\desktop\4> F:\VB\OpenSSL-Win64\bin\openssl req -new -key deploy_view.key -out deploy_view.csr -subj "/CN=deploy_view"
+PS C:\Users\Admin\desktop\4> F:\VB\OpenSSL-Win64\bin\openssl x509 -req -in deploy_view.csr -CA F:\VB\minikube_profile\.minikube\ca.crt -CAkey F:\VB\minikube_profile\.minikube\ca.key -CAcreateserial -out deploy_view.crt -days 500
+Certificate request self-signature ok
+subject=CN = deploy_view
+PS C:\Users\Admin\desktop\4> kubectl config set-credentials deploy_view --client-certificate=deploy_view.crt --client-key=deploy_view.key
+User "deploy_view" set.
+PS C:\Users\Admin\desktop\4> kubectl config set-context deploy_view --cluster=minikube --user=deploy_view
+Context "deploy_view" created.
+PS C:\Users\Admin\desktop\4> kubectl config use-context deploy_view
+Switched to context "deploy_view".
+PS C:\Users\Admin\desktop\4> kubectl get node
+Error from server (Forbidden): nodes is forbidden: User "deploy_view" cannot list resource "nodes" in API group "" at the cluster scope
+PS C:\Users\Admin\desktop\4> kubectl config use-context minikube
+Switched to context "minikube".
+PS C:\Users\Admin\desktop\4> kubectl apply -f dep_view.yaml
+clusterrole.rbac.authorization.k8s.io/deploy_view created
+clusterrolebinding.rbac.authorization.k8s.io/deploy_view created
+clusterrole.rbac.authorization.k8s.io/deploy_edit created
+clusterrolebinding.rbac.authorization.k8s.io/deploy_edit created
+PS C:\Users\Admin\desktop\4> kubectl get node
+NAME       STATUS   ROLES                  AGE   VERSION
+minikube   Ready    control-plane,master   4d    v1.23.3
 ```
-### Configure user authentication using x509 certificates
-### Create private key
-```bash
-openssl genrsa -out k8s_user.key 2048
-```
-### Create a certificate signing request
-```bash
-openssl req -new -key k8s_user.key \
--out k8s_user.csr \
--subj "/CN=k8s_user"
-```
-### Sign the CSR in the Kubernetes CA. We have to use the CA certificate and the key, which are usually in /etc/kubernetes/pki. But since we use minikube, the certificates will be on the host machine in ~/.minikube
-```bash
-openssl x509 -req -in k8s_user.csr \
--CA ~/.minikube/ca.crt \
--CAkey ~/.minikube/ca.key \
--CAcreateserial \
--out k8s_user.crt -days 500
-```
-### Create user in kubernetes
-```bash
-kubectl config set-credentials k8s_user \
---client-certificate=k8s_user.crt \
---client-key=k8s_user.key
-```
-### Set context for user
-```bash
-kubectl config set-context k8s_user \
---cluster=minikube --user=k8s_user
-```
-### Edit ~/.kube/config
-```bash
-Change path
-- name: k8s_user
-  user:
-    client-certificate: C:\Users\Andrey_Trusikhin\educ\k8s_user.crt
-    client-key: C:\Users\Andrey_Trusikhin\educ\k8s_user.key
-contexts:
-- context:
-    cluster: minikube
-    user: k8s_user
-  name: k8s_user
-```
-### Switch to use new context
-```bash
-kubectl config use-context k8s_user
-```
-### Check privileges
-```bash
-kubectl get node
-kubectl get pod
-```
-### Sample output
-```bash
-Error from server (Forbidden): pods is forbidden: User "k8s_user" cannot list resource "pods" in API group "" in the namespace "default"
-```
-### Switch to default(admin) context
-```bash
-kubectl config use-context minikube
-```
-### Bind role and clusterrole to the user
-```bash
-kubectl apply -f binding.yaml
-```
-### Check output
-```bash
-kubectl get pod
-```
-Now we can see pods
-
-
-### Homework
-* Create users deploy_view and deploy_edit. Give the user deploy_view rights only to view deployments, pods. Give the user deploy_edit full rights to the objects deployments, pods.
 * Create namespace prod. Create users prod_admin, prod_view. Give the user prod_admin admin rights on ns prod, give the user prod_view only view rights on namespace prod.
+ ```
+PS C:\Users\Admin\desktop\4> kubectl create namespace prod
+namespace/prod created
+...
+PS C:\Users\Admin\desktop\4> kubectl apply -f prod.yaml
+rolebinding.rbac.authorization.k8s.io/view created
+rolebinding.rbac.authorization.k8s.io/prod created
+...
+```
 * Create a serviceAccount sa-namespace-admin. Grant full rights to namespace default. Create context, authorize using the created sa, check accesses.
