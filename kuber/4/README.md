@@ -35,7 +35,7 @@ rolebinding.rbac.authorization.k8s.io/prod created
 ...
 ```
 * Create a serviceAccount sa-namespace-admin. Grant full rights to namespace default. Create context, authorize using the created sa, check accesses.
-* ```
+ ```
 * kubectl auth can-i get pods --as=system:serviceaccount:default:sa-namespace-admin
 no
 kubectl auth can-i get pods --as=system:serviceaccount:prod:sa-namespace-admin
