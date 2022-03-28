@@ -1,0 +1,162 @@
+C:\Users\Admin\Desktop\2>kubectl create secret generic connection-string --from-literal=DATABASE_URL=postgres://connect --dry-run=client -o yaml > secret.yaml
+
+C:\Users\Admin\Desktop\2>kubectl create configmap user --from-literal=firstname=firstname --from-literal=lastname=lastname --dry-run=client -o yaml > cm.yaml
+
+C:\Users\Admin\Desktop\2>kubectl apply -f secret.yaml
+secret/connection-string created
+
+C:\Users\Admin\Desktop\2>kubectl apply -f cm.yaml
+configmap/user created
+
+C:\Users\Admin\Desktop\2>kubectl apply -f pod.yaml
+pod/nginx created
+
+C:\Users\Admin\Desktop\2>kubectl exec -it nginx -- bash
+root@nginx:/# printenv
+KUBERNETES_SERVICE_PORT_HTTPS=443
+KUBERNETES_SERVICE_PORT=443
+DATABASE_URL=postgres://connect
+HOSTNAME=nginx
+PWD=/
+PKG_RELEASE=1~bullseye
+HOME=/root
+KUBERNETES_PORT_443_TCP=tcp://10.96.0.1:443
+NJS_VERSION=0.7.2
+TERM=xterm
+SHLVL=1
+KUBERNETES_PORT_443_TCP_PROTO=tcp
+KUBERNETES_PORT_443_TCP_ADDR=10.96.0.1
+lastname=lastname
+KUBERNETES_SERVICE_HOST=10.96.0.1
+KUBERNETES_PORT=tcp://10.96.0.1:443
+KUBERNETES_PORT_443_TCP_PORT=443
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+firstname=firstname
+NGINX_VERSION=1.21.6
+_=/usr/bin/printenv
+root@nginx:/# whoami
+root
+root@nginx:/# exit
+exit
+
+C:\Users\Admin\Desktop\2>kubectl get pods -o wide
+NAME    READY   STATUS    RESTARTS   AGE   IP           NODE       NOMINATED NODE   READINESS GATES
+nginx   1/1     Running   0          60s   172.17.0.7   minikube   <none>           <none>
+
+C:\Users\Admin\Desktop\2>kubectl apply -f nginx-configmap.yaml
+configmap/nginx-configmap created
+
+C:\Users\Admin\Desktop\2>kubectl apply -f deployment.yaml
+deployment.apps/web created
+
+C:\Users\Admin\Desktop\2>kubectl get pods -o wide
+NAME                   READY   STATUS              RESTARTS   AGE     IP            NODE       NOMINATED NODE   READINESS GATES
+nginx                  1/1     Running             0          2m51s   172.17.0.7    minikube   <none>           <none>
+web-6745ffd5c8-4vtt7   0/1     ContainerCreating   0          6s      <none>        minikube   <none>           <none>
+web-6745ffd5c8-g4wp5   1/1     Running             0          6s      172.17.0.10   minikube   <none>           <none>
+web-6745ffd5c8-xvb7v   0/1     ContainerCreating   0          6s      <none>        minikube   <none>           <none>
+
+C:\Users\Admin\Desktop\2>kubectl get pods -o wide
+NAME                   READY   STATUS    RESTARTS   AGE    IP            NODE       NOMINATED NODE   READINESS GATES
+nginx                  1/1     Running   0          3m4s   172.17.0.7    minikube   <none>           <none>
+web-6745ffd5c8-4vtt7   1/1     Running   0          19s    172.17.0.9    minikube   <none>           <none>
+web-6745ffd5c8-g4wp5   1/1     Running   0          19s    172.17.0.10   minikube   <none>           <none>
+web-6745ffd5c8-xvb7v   1/1     Running   0          19s    172.17.0.8    minikube   <none>           <none>
+
+C:\Users\Admin\Desktop\2>kubectl expose deployment/web --type=ClusterIP --dry-run=client -o yaml > service_template.yaml
+
+C:\Users\Admin\Desktop\2>kubectl apply -f service_template.yaml
+service/web created
+
+C:\Users\Admin\Desktop\2>kubectl get svc
+NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.96.0.1      <none>        443/TCP   3d22h
+web          ClusterIP   10.98.172.59   <none>        80/TCP    48s
+
+C:\Users\Admin\Desktop\2>kubectl apply -f service-nodeport.yaml
+service/web-np created
+
+C:\Users\Admin\Desktop\2>kubectl get service
+NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+kubernetes   ClusterIP   10.96.0.1       <none>        443/TCP        3d22h
+web          ClusterIP   10.98.172.59    <none>        80/TCP         97s
+web-np       NodePort    10.101.238.32   <none>        80:31578/TCP   8s
+
+C:\Users\Admin\Desktop\2>minikube ip
+192.168.59.101
+
+C:\Users\Admin\Desktop\2>kubectl apply -f service-headless.yaml
+service/web-headless created
+
+C:\Users\Admin\Desktop\2>kubectl get service
+NAME           TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+kubernetes     ClusterIP   10.96.0.1       <none>        443/TCP        3d22h
+web            ClusterIP   10.98.172.59    <none>        80/TCP         3m35s
+web-headless   ClusterIP   None            <none>        80/TCP         10s
+web-np         NodePort    10.101.238.32   <none>        80:31578/TCP   2m6s
+
+C:\Users\Admin\Desktop\2>minikube addons enable ingress
+  - Используется образ k8s.gcr.io/ingress-nginx/controller:v1.1.1
+  - Используется образ k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v1.1.1
+  - Используется образ k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v1.1.1
+* Verifying ingress addon...
+* The 'ingress' addon is enabled
+
+C:\Users\Admin\Desktop\2>kubectl exec -it web-6745ffd5c8-4vtt7 -- bash
+root@web-6745ffd5c8-4vtt7:/# cat /etc/resolv.conf
+nameserver 10.96.0.10
+search default.svc.cluster.local svc.cluster.local cluster.local
+options ndots:5
+root@web-6745ffd5c8-4vtt7:/# cat /etc/resolv.conf
+nameserver 10.96.0.10
+search default.svc.cluster.local svc.cluster.local cluster.local
+options ndots:5
+root@web-6745ffd5c8-4vtt7:/# exit
+exit
+
+C:\Users\Admin\Desktop\2>kubectl get service
+NAME           TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+kubernetes     ClusterIP   10.96.0.1       <none>        443/TCP        3d22h
+web            ClusterIP   10.98.172.59    <none>        80/TCP         6m5s
+web-headless   ClusterIP   None            <none>        80/TCP         2m40s
+web-np         NodePort    10.101.238.32   <none>        80:31578/TCP   4m36s
+
+C:\Users\Admin\Desktop\2>kubectl get pods -o wide
+NAME                   READY   STATUS    RESTARTS   AGE   IP            NODE       NOMINATED NODE   READINESS GATES
+nginx                  1/1     Running   0          16m   172.17.0.7    minikube   <none>           <none>
+web-6745ffd5c8-4vtt7   1/1     Running   0          14m   172.17.0.9    minikube   <none>           <none>
+web-6745ffd5c8-g4wp5   1/1     Running   0          14m   172.17.0.10   minikube   <none>           <none>
+web-6745ffd5c8-xvb7v   1/1     Running   0          14m   172.17.0.8    minikube   <none>           <none>
+
+C:\Users\Admin\Desktop\2>kubectl get pods -n ingress-nginx
+NAME                                       READY   STATUS      RESTARTS   AGE
+ingress-nginx-admission-create-sg4rd       0/1     Completed   0          2m17s
+ingress-nginx-admission-patch-hf4jj        0/1     Completed   0          2m17s
+ingress-nginx-controller-cc8496874-n792f   1/1     Running     0          2m17s
+
+C:\Users\Admin\Desktop\2>kubectl apply -f ingress.yaml
+ingress.networking.k8s.io/ingress-web created
+
+
+PS C:\Users\Admin\desktop\2> kubectl describe pods -n kube-system | Select-String "Controlled By", "^Name:"
+
+Name:                 coredns-64897985d-zhzmt
+Controlled By:  ReplicaSet/coredns-64897985d
+Name:                 etcd-minikube
+Controlled By:  Node/minikube
+Name:                 kube-apiserver-minikube
+Controlled By:  Node/minikube
+Name:                 kube-controller-manager-minikube
+Controlled By:  Node/minikube
+Name:                 kube-proxy-dlfzv
+Controlled By:  DaemonSet/kube-proxy
+Name:                 kube-scheduler-minikube
+Controlled By:  Node/minikube
+Name:                 metrics-server-6cd5c97f5d-k85m9
+Controlled By:  ReplicaSet/metrics-server-6cd5c97f5d
+Name:                 metrics-server-847dcc659d-rbdj6
+Controlled By:  ReplicaSet/metrics-server-847dcc659d
+Name:         storage-provisioner
+
+PS C:\Users\Admin\desktop\2> kubectl apply -f in-canary.yaml
+ingress.networking.k8s.io/ingress-web configured

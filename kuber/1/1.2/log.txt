@@ -1,0 +1,117 @@
+C:\Users\Admin>kubectl run web --image=nginx:latest
+pod/web created
+
+C:\Users\Admin>kubectl get pods
+NAME   READY   STATUS    RESTARTS   AGE
+web    1/1     Running   0          72s
+
+C:\Users\Admin>minikube ssh
+                         _             _
+            _         _ ( )           ( )
+  ___ ___  (_)  ___  (_)| |/')  _   _ | |_      __
+/' _ ` _ `\| |/' _ `\| || , <  ( ) ( )| '_`\  /'__`\
+| ( ) ( ) || || ( ) || || |\`\ | (_) || |_) )(  ___/
+(_) (_) (_)(_)(_) (_)(_)(_) (_)`\___/'(_,__/'`\____)
+
+$ docker container ls
+CONTAINER ID   IMAGE                                      COMMAND                  CREATED          STATUS          PORTS     NAMES
+bd40d2f60ffb   nginx                                      "/docker-entrypoint.…"   5 minutes ago    Up 5 minutes              k8s_web_web_default_3d6da7ba-c206-4328-8d93-3d07eaeee758_0
+3f4554be5198   k8s.gcr.io/pause:3.6                       "/pause"                 5 minutes ago    Up 5 minutes              k8s_POD_web_default_3d6da7ba-c206-4328-8d93-3d07eaeee758_0
+f8d26f7c4c11   k8s.gcr.io/pause:3.6                       "/pause"                 8 minutes ago    Up 8 minutes              k8s_POD_metrics-server-6cd5c97f5d-k85m9_kube-system_8b2e5681-8a00-41a1-a0fd-943d56857e75_0
+6e462605c4f3   k8s.gcr.io/metrics-server/metrics-server   "/metrics-server --c…"   10 minutes ago   Up 10 minutes             k8s_metrics-server_metrics-server-847dcc659d-rbdj6_kube-system_55459f9c-a321-421f-b81b-1817a4bd9460_0
+83e76a6a241f   k8s.gcr.io/pause:3.6                       "/pause"                 10 minutes ago   Up 10 minutes             k8s_POD_metrics-server-847dcc659d-rbdj6_kube-system_55459f9c-a321-421f-b81b-1817a4bd9460_0
+62e0257c0571   kubernetesui/metrics-scraper               "/metrics-sidecar"       10 minutes ago   Up 10 minutes             k8s_dashboard-metrics-scraper_dashboard-metrics-scraper-577dc49767-r7mps_kubernetes-dashboard_cd52eaf3-ec28-4eac-954c-fb3bc5d3d9c4_0
+10b38d4ba4c3   kubernetesui/dashboard                     "/dashboard --insecu…"   10 minutes ago   Up 10 minutes             k8s_kubernetes-dashboard_kubernetes-dashboard-78f9d9744f-n2x5n_kubernetes-dashboard_094678a2-1188-46c1-9693-0b7376b97a54_0
+3d86bbdd866d   k8s.gcr.io/pause:3.6                       "/pause"                 11 minutes ago   Up 10 minutes             k8s_POD_dashboard-metrics-scraper-577dc49767-r7mps_kubernetes-dashboard_cd52eaf3-ec28-4eac-954c-fb3bc5d3d9c4_0
+5bc4dc013109   k8s.gcr.io/pause:3.6                       "/pause"                 11 minutes ago   Up 10 minutes             k8s_POD_kubernetes-dashboard-78f9d9744f-n2x5n_kubernetes-dashboard_094678a2-1188-46c1-9693-0b7376b97a54_0
+a7a6198548d3   6e38f40d628d                               "/storage-provisioner"   11 minutes ago   Up 11 minutes             k8s_storage-provisioner_storage-provisioner_kube-system_8a886cd2-cc7a-4714-8cf4-b7fcc0f94afe_2
+e5abe81ae3aa   a4ca41631cc7                               "/coredns -conf /etc…"   11 minutes ago   Up 11 minutes             k8s_coredns_coredns-64897985d-zhzmt_kube-system_b5bde14b-33cf-4810-a9d0-5475654d7d81_1
+0706eeeff5cf   9b7cc9982109                               "/usr/local/bin/kube…"   12 minutes ago   Up 11 minutes             k8s_kube-proxy_kube-proxy-dlfzv_kube-system_df6e9c59-9d5f-4359-a9c9-138a5bb49c0e_1
+93674c9f68f6   k8s.gcr.io/pause:3.6                       "/pause"                 12 minutes ago   Up 11 minutes             k8s_POD_kube-proxy-dlfzv_kube-system_df6e9c59-9d5f-4359-a9c9-138a5bb49c0e_1
+6ef5fe4d98f7   k8s.gcr.io/pause:3.6                       "/pause"                 12 minutes ago   Up 11 minutes             k8s_POD_coredns-64897985d-zhzmt_kube-system_b5bde14b-33cf-4810-a9d0-5475654d7d81_1
+3ac42c8c58c7   k8s.gcr.io/pause:3.6                       "/pause"                 12 minutes ago   Up 11 minutes             k8s_POD_storage-provisioner_kube-system_8a886cd2-cc7a-4714-8cf4-b7fcc0f94afe_1
+556c7605ebbb   25f8c7f3da61                               "etcd --advertise-cl…"   12 minutes ago   Up 12 minutes             k8s_etcd_etcd-minikube_kube-system_74532e06f67e119ce1a5dc3ee7d2206b_1
+3d549c419072   99a3486be4f2                               "kube-scheduler --au…"   12 minutes ago   Up 12 minutes             k8s_kube-scheduler_kube-scheduler-minikube_kube-system_be132fe5c6572cb34d93f5e05ce2a540_1
+5e2fef02e10b   b07520cd7ab7                               "kube-controller-man…"   12 minutes ago   Up 12 minutes             k8s_kube-controller-manager_kube-controller-manager-minikube_kube-system_587a73e23652b9545f6dd4342aff032b_2
+9d1a274609d8   f40be0088a83                               "kube-apiserver --ad…"   12 minutes ago   Up 12 minutes             k8s_kube-apiserver_kube-apiserver-minikube_kube-system_155a824721f5c67724f3218465dd9080_1
+2bc52e2b4d18   k8s.gcr.io/pause:3.6                       "/pause"                 12 minutes ago   Up 12 minutes             k8s_POD_kube-controller-manager-minikube_kube-system_587a73e23652b9545f6dd4342aff032b_1
+f952ed49b2ae   k8s.gcr.io/pause:3.6                       "/pause"                 12 minutes ago   Up 12 minutes             k8s_POD_kube-scheduler-minikube_kube-system_be132fe5c6572cb34d93f5e05ce2a540_1
+1f5196a422f8   k8s.gcr.io/pause:3.6                       "/pause"                 12 minutes ago   Up 12 minutes             k8s_POD_kube-apiserver-minikube_kube-system_155a824721f5c67724f3218465dd9080_1
+d474527153e6   k8s.gcr.io/pause:3.6                       "/pause"                 12 minutes ago   Up 12 minutes             k8s_POD_etcd-minikube_kube-system_74532e06f67e119ce1a5dc3ee7d2206b_1
+$ docker image ps
+
+Usage:  docker image COMMAND
+
+Manage images
+
+Commands:
+  build       Build an image from a Dockerfile
+  history     Show the history of an image
+  import      Import the contents from a tarball to create a filesystem image
+  inspect     Display detailed information on one or more images
+  load        Load an image from a tar archive or STDIN
+  ls          List images
+  prune       Remove unused images
+  pull        Pull an image or a repository from a registry
+  push        Push an image or a repository to a registry
+  rm          Remove one or more images
+  save        Save one or more images to a tar archive (streamed to STDOUT by default)
+  tag         Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE
+
+Run 'docker image COMMAND --help' for more information on a command.
+$ docker image ls
+REPOSITORY                                 TAG       IMAGE ID       CREATED         SIZE
+nginx                                      latest    f2f70adc5d89   10 days ago     142MB
+k8s.gcr.io/metrics-server/metrics-server   v0.6.1    e57a417f15d3   6 weeks ago     68.8MB
+k8s.gcr.io/kube-apiserver                  v1.23.3   f40be0088a83   2 months ago    135MB
+k8s.gcr.io/kube-scheduler                  v1.23.3   99a3486be4f2   2 months ago    53.5MB
+k8s.gcr.io/kube-controller-manager         v1.23.3   b07520cd7ab7   2 months ago    125MB
+k8s.gcr.io/kube-proxy                      v1.23.3   9b7cc9982109   2 months ago    112MB
+k8s.gcr.io/etcd                            3.5.1-0   25f8c7f3da61   4 months ago    293MB
+k8s.gcr.io/coredns/coredns                 v1.8.6    a4ca41631cc7   5 months ago    46.8MB
+k8s.gcr.io/pause                           3.6       6270bb605e12   7 months ago    683kB
+kubernetesui/dashboard                     v2.3.1    e1482a24335a   9 months ago    220MB
+kubernetesui/metrics-scraper               v1.0.7    7801cfc6d5c0   9 months ago    34.4MB
+gcr.io/k8s-minikube/storage-provisioner    v5        6e38f40d628d   12 months ago   31.5MB
+kubernetesui/metrics-scraper               v1.0.6    48d79e554db6   17 months ago   34.5MB
+$ exit
+logout
+
+C:\Users\Admin>cd desktop
+
+C:\Users\Admin\Desktop>cd 1.2
+
+C:\Users\Admin\Desktop\1.2>kubectl apply -f pod.yaml
+pod/nginx created
+
+C:\Users\Admin\Desktop\1.2>kubectl apply -f rs.yaml
+replicaset.apps/webreplica created
+
+C:\Users\Admin\Desktop\1.2>kubectl get pod
+NAME               READY   STATUS    RESTARTS   AGE
+nginx              1/1     Running   0          2m5s
+web                1/1     Running   0          10m
+webreplica-f9rxc   1/1     Running   0          31s
+
+C:\Users\Admin\Desktop\1.2>kubectl run web --image=nginx:latest --dry-run=client -o yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: web
+  name: web
+spec:
+  containers:
+  - image: nginx:latest
+    name: web
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+C:\Users\Admin\Desktop\1.2>kubectl apply -f rs.yaml
+replicaset.apps/webreplica configured
+
+C:\Users\Admin\Desktop\1.2>kubectl apply -f rs.yaml
+replicaset.apps/webreplicadouble configured

@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  labels:
+    app: webreplicadouble
+  name: webreplicadouble
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: webreplicadouble
+  template:
+    metadata:
+      labels:
+        app: webreplicadouble
+    spec:
+      containers:
+      - image: nginx:latest
+        name: nginx
