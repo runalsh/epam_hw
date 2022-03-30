@@ -73,6 +73,35 @@ NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
 kubernetes   ClusterIP   10.96.0.1      <none>        443/TCP   3d22h
 web          ClusterIP   10.98.172.59   <none>        80/TCP    48s
 
+C:\Users\Admin\Desktop\2>kubectl exec -it web-6745ffd5c8-4vtt7 bash
+root@web-6745ffd5c8-4vtt7:/# curl 172.17.0.9
+web-6745ffd5c8-4vtt7
+root@web-6745ffd5c8-4vtt7:/# curl 172.17.0.10
+web-6745ffd5c8-g4wp5
+root@web-6745ffd5c8-4vtt7:/# curl 172.17.0.8
+web-6745ffd5c8-xvb7v
+root@web-6745ffd5c8-4vtt7:/# exit
+exit
+
+C:\Users\Admin\Desktop\2>minikube ssh
+                         _             _
+            _         _ ( )           ( )
+  ___ ___  (_)  ___  (_)| |/')  _   _ | |_      __
+/' _ ` _ `\| |/' _ `\| || , <  ( ) ( )| '_`\  /'__`\
+| ( ) ( ) || || ( ) || || |\`\ | (_) || |_) )(  ___/
+(_) (_) (_)(_)(_) (_)(_)(_) (_)`\___/'(_,__/'`\____)
+
+$ curl 172.17.0.10
+web-6745ffd5c8-g4wp5
+$ curl 172.17.0.9
+web-6745ffd5c8-4vtt7
+$ curl 172.17.0.8
+web-6745ffd5c8-xvb7v
+$ exit
+logout
+
+C:\Users\Admin\Desktop\education-main\task_2>
+
 C:\Users\Admin\Desktop\2>kubectl apply -f service-nodeport.yaml
 service/web-np created
 
@@ -96,9 +125,9 @@ web-headless   ClusterIP   None            <none>        80/TCP         10s
 web-np         NodePort    10.101.238.32   <none>        80:31578/TCP   2m6s
 
 C:\Users\Admin\Desktop\2>minikube addons enable ingress
-  - Используется образ k8s.gcr.io/ingress-nginx/controller:v1.1.1
-  - Используется образ k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v1.1.1
-  - Используется образ k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v1.1.1
+  - Г€Г±ГЇГ®Г«ГјГ§ГіГҐГІГ±Гї Г®ГЎГ°Г Г§ k8s.gcr.io/ingress-nginx/controller:v1.1.1
+  - Г€Г±ГЇГ®Г«ГјГ§ГіГҐГІГ±Гї Г®ГЎГ°Г Г§ k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v1.1.1
+  - Г€Г±ГЇГ®Г«ГјГ§ГіГҐГІГ±Гї Г®ГЎГ°Г Г§ k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v1.1.1
 * Verifying ingress addon...
 * The 'ingress' addon is enabled
 
