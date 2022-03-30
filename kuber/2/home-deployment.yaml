@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: web-homework
+  name: web-homework
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web-homework
+  template:
+    metadata:
+      labels:
+        app: web-homework
+    spec:
+      containers:
+      - image: nginx:latest
+        name: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - name: config-nginx
+            mountPath: /etc/nginx/conf.d
+      volumes:
+        - name: config-nginx
+          configMap:
+            name: nginx-configmap-homework
