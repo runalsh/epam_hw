@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: Service
+metadata:  
+  labels:
+    app: minio
+  name: minio
+spec:
+  ports:
+  - port: 9001
+    protocol: TCP
+    targetPort: 9001
+  selector:
+    app: minio
+  type: ClusterIP
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:  
+  labels:
+    app: minio
+  name: minioweb
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: minio
+  type: ClusterIP
+status:
+  loadBalancer: {}
+

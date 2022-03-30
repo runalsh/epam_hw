@@ -1,0 +1,70 @@
+PS C:\Users\Admin\desktop\3> kubectl apply -f pv.yaml
+persistentvolume/minio-deployment-pv created
+PS C:\Users\Admin\desktop\3> kubectl get pv
+NAME                  CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM   STORAGECLASS   REASON   AGE
+minio-deployment-pv   5Gi        RWO            Retain           Available                                   7s
+PS C:\Users\Admin\desktop\3> kubectl apply -f pvc.yaml
+persistentvolumeclaim/minio-deployment-claim created
+PS C:\Users\Admin\desktop\3> kubectl get pv
+NAME                  CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                            STORAGECLASS   REASON   AGE
+minio-deployment-pv   5Gi        RWO            Retain           Bound    default/minio-deployment-claim                           24s
+PS C:\Users\Admin\desktop\3> kubectl apply -f deployment.yaml
+deployment.apps/minio created
+PS C:\Users\Admin\desktop\3> kubectl apply -f minio-nodeport.yaml
+service/minio-app created
+PS C:\Users\Admin\desktop\3> kubectl apply -f statefulset.yaml
+statefulset.apps/minio-state created
+service/minio-state created
+PS C:\Users\Admin\desktop\3> kubectl get pod
+NAME                    READY   STATUS              RESTARTS   AGE
+minio-94fd47554-vwwpg   1/1     Running             0          2m16s
+minio-state-0           0/1     ContainerCreating   0          5s
+nginx                   1/1     Running             0          51m
+web-6745ffd5c8-2nfnl    1/1     Running             0          30m
+web-6745ffd5c8-g4wp5    1/1     Running             0          48m
+web-6745ffd5c8-xvb7v    1/1     Running             0          48m
+PS C:\Users\Admin\desktop\3> kubectl get sts
+NAME          READY   AGE
+minio-state   1/1     9s
+PS C:\Users\Admin\desktop\3> kubectl apply -f ingress.yaml
+ingress.networking.k8s.io/ingress-web created
+
+PS C:\Users\Admin\desktop\3> kubectl apply -f pv.yaml
+persistentvolume/minio-deployment-pv unchanged
+PS C:\Users\Admin\desktop\3> kubectl get pv
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                            STORAGECLASS   REASON   AGE
+minio-deployment-pv                        5Gi        RWO            Retain           Bound    default/minio-deployment-claim                           15m
+pvc-bbc1014e-54ae-400f-9311-162f47ffa378   1Gi        RWO            Delete           Bound    default/minio-minio-state-0      standard                12m
+PS C:\Users\Admin\desktop\3> kubectl apply -f pvc.yaml
+persistentvolumeclaim/minio-deployment-claim unchanged
+PS C:\Users\Admin\desktop\3> kubectl apply -f deployment.yaml
+deployment.apps/minio created
+PS C:\Users\Admin\desktop\3> kubectl apply -f minio-nodeport.yaml
+service/minio-app created
+PS C:\Users\Admin\desktop\3> kubectl apply -f statefulset.yaml
+statefulset.apps/minio-state configured
+service/minio-state created
+PS C:\Users\Admin\desktop\3> kubectl get pod
+NAME                    READY   STATUS    RESTARTS   AGE
+minio-94fd47554-xq75z   1/1     Running   0          16s
+minio-state-0           1/1     Running   0          83s
+nginx                   1/1     Running   0          64m
+PS C:\Users\Admin\desktop\3> kubectl get sts
+NAME          READY   AGE
+minio-state   1/1     13m
+PS C:\Users\Admin\desktop\3> kubectl apply -f home-ingress.yaml
+ingress.networking.k8s.io/ingress-web created
+PS C:\Users\Admin\desktop\3> kubectl apply -f nginx.yaml
+deployment.apps/minio configured
+PS C:\Users\Admin\desktop\3> kubectl apply -f home-ingress.yaml
+ingress.networking.k8s.io/ingress-web configured
+PS C:\Users\Admin\desktop\3> kubectl apply -f service.yaml
+service/minio created
+service/minioweb created
+PS C:\Users\Admin\desktop\3> kubectl apply -f home-ingress.yaml
+ingress.networking.k8s.io/ingress-web created
+PS C:\Users\Admin\desktop\3> kubectl apply -f nginx.yaml
+deployment.apps/minio unchanged
+PS C:\Users\Admin\desktop\3> kubectl apply -f service.yaml
+service/minio created
+service/minioweb created
