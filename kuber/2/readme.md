@@ -24,29 +24,44 @@ Name:         storage-provisioner
 * Implement Canary deployment of an application via Ingress. Traffic to canary deployment should be redirected if you add "canary:always" in the header, otherwise it should go to regular deployment. Set to redirect a percentage of traffic to canary deployment.
 
 ```
-canary.yaml
+C:\Users\Admin\Desktop\education-main\task_2>kubectl apply -f home-deployment.yaml
+deployment.apps/web-homework created
 
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: ingress-web
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-    ingress.nginx.kubernetes.io/canary-by-header: "canary:always"
-    ingress.nginx.kubernetes.io/canary: "true"
-    ingress.nginx.kubernetes.io/canary-weight: "5"
-spec:
-  rules:
-  - http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-             name: web
-             port: 
-                number: 80
+C:\Users\Admin\Desktop\education-main\task_2>kubectl apply -f home-service_template.yaml
+service/web-homework created
+
+C:\Users\Admin\Desktop\education-main\task_2>kubectl apply -f home-nginx-configmap.yaml
+configmap/nginx-configmap-homework created
+
+C:\Users\Admin\Desktop\education-main\task_2>kubectl apply -f home-ingress.yaml
+ingress.networking.k8s.io/ingress-web-homework created
+
+C:\Users\Admin\Desktop\education-main\task_2>F:\VB\curl\curl 192.168.59.102 -H "canary:always"
+web-homework-5488644856-6q646
+ homework
+C:\Users\Admin\Desktop\education-main\task_2>F:\VB\curl\curl 192.168.59.102 -H "canary:always"
+web-homework-5488644856-whd7h
+ homework
+C:\Users\Admin\Desktop\education-main\task_2>F:\VB\curl\curl 192.168.59.102 -H "canary:always"
+web-homework-5488644856-hq8f4
+ homework
+C:\Users\Admin\Desktop\education-main\task_2>F:\VB\curl\curl 192.168.59.102 -H "canary:always"
+web-homework-5488644856-6q646
+ homework
+ 
+ C:\Users\Admin\Desktop\education-main\task_2>curl 192.168.59.102
+web-6745ffd5c8-4vtt7
+
+C:\Users\Admin\Desktop\education-main\task_2>curl 192.168.59.102
+web-6745ffd5c8-g4wp5
+
+C:\Users\Admin\Desktop\education-main\task_2>curl 192.168.59.102
+web-6745ffd5c8-xvb7v
+
+C:\Users\Admin\Desktop\education-main\task_2>curl 192.168.59.102
+web-6745ffd5c8-xvb7v
 ```
+
 
 * Full log of working with task - log.txt
 * Some screens from dashboard - pres.pptx
