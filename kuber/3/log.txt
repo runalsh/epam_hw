@@ -52,20 +52,16 @@ nginx                   1/1     Running   0          64m
 PS C:\Users\Admin\desktop\3> kubectl get sts
 NAME          READY   AGE
 minio-state   1/1     13m
-PS C:\Users\Admin\desktop\3> kubectl apply -f ingress.yaml
+PS C:\Users\Admin\desktop\3> kubectl apply -f home-ingress.yaml
 ingress.networking.k8s.io/ingress-web created
 PS C:\Users\Admin\desktop\3> kubectl apply -f nginx.yaml
 deployment.apps/minio configured
-PS C:\Users\Admin\desktop\3> kubectl apply -f ingress.yaml
-ingress.networking.k8s.io/ingress-web unchanged
-PS C:\Users\Admin\desktop\3> kubectl apply -f ingress.yaml
+PS C:\Users\Admin\desktop\3> kubectl apply -f home-ingress.yaml
 ingress.networking.k8s.io/ingress-web configured
-PS C:\Users\Admin\desktop\3> kubectl apply -f nginx.yaml
-deployment.apps/minio unchanged
 PS C:\Users\Admin\desktop\3> kubectl apply -f service.yaml
 service/minio created
 service/minioweb created
-PS C:\Users\Admin\desktop\3> kubectl apply -f ingress.yaml
+PS C:\Users\Admin\desktop\3> kubectl apply -f home-ingress.yaml
 ingress.networking.k8s.io/ingress-web created
 PS C:\Users\Admin\desktop\3> kubectl apply -f nginx.yaml
 deployment.apps/minio unchanged
