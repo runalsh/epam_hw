@@ -68,3 +68,66 @@ deployment.apps/minio unchanged
 PS C:\Users\Admin\desktop\3> kubectl apply -f service.yaml
 service/minio created
 service/minioweb created
+
+C:\Users\Admin\Desktop\epam_hw-main\kuber\3>kubectl get pod -o wide
+NAME                    READY   STATUS    RESTARTS   AGE    IP           NODE       NOMINATED NODE   READINESS GATES
+minio-94fd47554-xq75z   1/1     Running   0          70s
+minio-state-0           1/1     Running   0          150s
+nginx                   1/1     Running   0          67m
+
+C:\Users\Admin\Desktop\epam_hw-main\kuber\3>kubectl exec -it minio-94fd47554-xq75z
+error: you must specify at least one command for the container
+
+C:\Users\Admin\Desktop\epam_hw-main\kuber\3>kubectl exec -it minio-94fd47554-xq75z bash
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+Defaulted container "minio" out of: minio, nginx
+[root@minio-94fd47554-xq75z /]# cd blablabla
+[root@minio-94fd47554-xq75z blablabla]# ls -la
+total 8
+drwxrwxrwx 2 root root 4096 Apr  3 15:39 .
+drwxr-xr-x 1 root root 4096 Apr  3 15:39 ..
+[root@minio-94fd47554-xq75z blablabla]# echo privet > privet.txt
+[root@minio-94fd47554-xq75z blablabla]# ls -la
+total 12
+drwxrwxrwx 2 root root 4096 Apr  3 15:44 .
+drwxr-xr-x 1 root root 4096 Apr  3 15:39 ..
+-rw-r--r-- 1 root root    7 Apr  3 15:44 privet.txt
+[root@minio-94fd47554-xq75z blablabla]# cat privet.txt
+privet
+[root@minio-94fd47554-xq75z blablabla]# kill nginx
+bash: kill: nginx: arguments must be process or job IDs
+
+[root@minio-94fd47554-xq75z blablabla]# kill 1
+[root@minio-94fd47554-xq75z blablabla]# command terminated with exit code 137
+
+C:\Users\Admin\Desktop\epam_hw-main\kuber\3>kubectl get pod -o wide
+NAME                    READY   STATUS    RESTARTS     AGE     IP           NODE       NOMINATED NODE   READINESS GATES
+minio-94fd47554-xq75z   2/2     Running   1 (8s ago)   6m41s   172.17.0.5   minikube   <none>           <none>
+minio-state-0           1/1     Running   0            4m     172.17.0.4   minikube   <none>           <none>
+
+C:\Users\Admin\Desktop\epam_hw-main\kuber\3>kubectl exec -it minio-94fd47554-xq75z bash
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+Defaulted container "minio" out of: minio, nginx
+[root@minio-94fd47554-xq75z /]# cat blablabla/privet.txt
+privet
+[root@minio-94fd47554-xq75z /]# exit
+exit
+
+C:\Users\Admin\Desktop\epam_hw-main\kuber\3>kubectl deletepod  minio-94fd47554-xq75z
+E0403 18:47:38.833143   10196 run.go:120] "command failed" err="unknown command \"deletepod\" for \"kubectl\""
+
+C:\Users\Admin\Desktop\epam_hw-main\kuber\3>kubectl delete pod  minio-94fd47554-xq75z
+pod "minio-94fd47554-xq75z" deleted
+
+C:\Users\Admin\Desktop\epam_hw-main\kuber\3>kubectl get pod -o wide
+NAME                    READY   STATUS              RESTARTS   AGE   IP           NODE       NOMINATED NODE   READINESS GATES
+minio-d79bcf688-s76b8   0/2     ContainerCreating   0          6s    <none>       minikube   <none>           <none>
+minio-state-0           1/1     Running             0          32m   172.17.0.4   minikube   <none>           <none>
+
+C:\Users\Admin\Desktop\epam_hw-main\kuber\3>kubectl exec -it minio-d79bcf688-s76b8 bash
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+Defaulted container "minio" out of: minio, nginx
+[root@minio-d79bcf688-s76b8 /]# cat cat blablabla/privet.txt
+cat: cat: No such file or directory
+cat: blablabla/privet.txt: No such file or directory
+[root@minio-d79bcf688-s76b8 /]#
