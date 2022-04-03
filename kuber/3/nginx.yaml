@@ -42,3 +42,19 @@ spec:
         - name: blablabla
           emptyDir: {}
 
+---
+apiVersion: v1
+data:
+  default.conf: |-
+    server {
+        listen 80 default_server;
+        server_name _;
+        default_type text/plain;
+        location /web {
+            return 200 '$hostname\n';
+        }
+    }
+kind: ConfigMap
+metadata:
+  name: nginx-configmap
+
