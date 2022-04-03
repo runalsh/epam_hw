@@ -10,7 +10,8 @@
 
 * Full log of working with task - log.txt
 ```
-lets connect to pod
+ 
+### lets connect to pod
 
 kubectl exec -it minio-94fd47554-xq75z bash
 [root@minio-94fd47554-xq75z /]# cd blablabla
@@ -19,7 +20,7 @@ total 8
 drwxrwxrwx 2 root root 4096 Apr  3 15:39 .
 drwxr-xr-x 1 root root 4096 Apr  3 15:39 ..
 
-create the file
+###create the file
 
 [root@minio-94fd47554-xq75z blablabla]# echo privet > privet.txt
 [root@minio-94fd47554-xq75z blablabla]# ls -la
