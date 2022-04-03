@@ -10,8 +10,8 @@
 
 * Full log of working with task - log.txt
 ```
- 
-### lets connect to pod
+
+lets connect to pod
 
 kubectl exec -it minio-94fd47554-xq75z bash
 [root@minio-94fd47554-xq75z /]# cd blablabla
@@ -58,8 +58,8 @@ Defaulted container "minio" out of: minio, nginx
 cat: cat: No such file or directory
 cat: blablabla/privet.txt: No such file or directory
 [root@minio-d79bcf688-s76b8 /]#
-
-nothing bacause we added emtydir to volume /blablabla
+```
+### nothing bacause we added emtydir to volume /blablabla
 
 
 
