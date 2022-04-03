@@ -38,9 +38,27 @@ bash: kill: nginx: arguments must be process or job IDs
 [root@minio-94fd47554-xq75z blablabla]# kill 1
 [root@minio-94fd47554-xq75z blablabla]# command terminated with exit code 137
 
+delete pod
 
+kubectl delete pod  minio-94fd47554-xq75z
+pod "minio-94fd47554-xq75z" deleted
 
+waiting to create new pod and try to find our file
 
+kubectl get pod -o wide
+NAME                    READY   STATUS              RESTARTS   AGE   IP           NODE       NOMINATED NODE   READINESS GATES
+minio-d79bcf688-s76b8   0/2     ContainerCreating   0          6s    <none>       minikube   <none>           <none>
+minio-state-0           1/1     Running             0          32m   172.17.0.4   minikube   <none>           <none>
+
+C:\Users\Admin\Desktop\epam_hw-main\kuber\3>kubectl exec -it minio-d79bcf688-s76b8 bash
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+Defaulted container "minio" out of: minio, nginx
+[root@minio-d79bcf688-s76b8 /]# cat cat blablabla/privet.txt
+cat: cat: No such file or directory
+cat: blablabla/privet.txt: No such file or directory
+[root@minio-d79bcf688-s76b8 /]#
+
+nothing bacause we added emtydir to volume /blablabla
 
 
 
