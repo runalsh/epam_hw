@@ -20,7 +20,7 @@ total 8
 drwxrwxrwx 2 root root 4096 Apr  3 15:39 .
 drwxr-xr-x 1 root root 4096 Apr  3 15:39 ..
 
-###create the file
+create the file
 
 [root@minio-94fd47554-xq75z blablabla]# echo privet > privet.txt
 [root@minio-94fd47554-xq75z blablabla]# ls -la
@@ -30,14 +30,6 @@ drwxr-xr-x 1 root root 4096 Apr  3 15:39 ..
 -rw-r--r-- 1 root root    7 Apr  3 15:44 privet.txt
 [root@minio-94fd47554-xq75z blablabla]# cat privet.txt
 privet
-
-stop container
-
-[root@minio-94fd47554-xq75z blablabla]# kill nginx
-bash: kill: nginx: arguments must be process or job IDs
-
-[root@minio-94fd47554-xq75z blablabla]# kill 1
-[root@minio-94fd47554-xq75z blablabla]# command terminated with exit code 137
 
 delete pod
 
@@ -59,7 +51,7 @@ cat: cat: No such file or directory
 cat: blablabla/privet.txt: No such file or directory
 [root@minio-d79bcf688-s76b8 /]#
 ```
-nothing bacause we added emtydir to volume /blablabla
+nothing bacause we added as emtydir to volume /blablabla
 
 
 
