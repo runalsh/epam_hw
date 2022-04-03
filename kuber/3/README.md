@@ -59,7 +59,7 @@ cat: cat: No such file or directory
 cat: blablabla/privet.txt: No such file or directory
 [root@minio-d79bcf688-s76b8 /]#
 ```
-### nothing bacause we added emtydir to volume /blablabla
+nothing bacause we added emtydir to volume /blablabla
 
 
 
