@@ -31,7 +31,7 @@ runcmd:
   - sudo yum -y update
   - sudo yum -y install httpd
   - sudo yum -y install httpd httpd-tools wget nfs-utils firewalld policycoreutils-python-utils php php-pdo php-mysqlnd
-  - sudo amazon-linux-extras install php7.4 -y
+  - sudo amazon-linux-extras install php7 -y
   - sudo systemctl stop httpd
   - sudo systemctl stop firewalld
   - sudo firewall-offline-cmd --zone=public --add-service=http
