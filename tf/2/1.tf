@@ -8,8 +8,6 @@ terraform {
 
 provider "aws" {
   region = "eu-central-1"
-  access_key = "AKIARGGSS3MVYT562XHM"
-  secret_key = "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"
 }
 
 #####################################################  VARS 
@@ -32,17 +30,14 @@ variable "instance_type" {
 
 data "aws_ami" "amazon_linux" {
   most_recent = true
-
   filter {
     name   = "name"
     values = ["amzn2-ami-hvm-*-x86_64-gp2"]
   }
-
   filter {
     name   = "architecture"
     values = ["x86_64"]
   }
-
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
@@ -111,7 +106,7 @@ data "template_cloudinit_config" "cloudinit_config" {
 
 #####################################################  instance
 
-resource "aws_instance" "wp_instance" {
+resource "aws_instance" "instance" {
   ami                     = data.aws_ami.amazon_linux.id
   instance_type           = var.instance_type
  security_groups = [ aws_security_group.sg_main.name ] 
@@ -141,7 +136,7 @@ resource "aws_db_instance" "db" {
 #####################################################  OUTPUT
 
 output "public_ip" {
-  value       = aws_instance.wp_instance.public_ip
+  value       = aws_instance.instance.public_ip
 }
 
 output "rds_endpoint" {
