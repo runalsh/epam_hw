@@ -1,0 +1,5 @@
+#cloud-config
+
+runcmd:
+  - sudo amazon-linux-extras install -y nginx
+  - sudo systemctl start nginx
