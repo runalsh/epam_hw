@@ -475,7 +475,7 @@ resource "aws_autoscaling_group" "autoscale_group" {
 
 
 
-# #=========  hren vam a ne scale ======================
+# #=========  not scale ======================
 # resource "aws_instance" "wp_instance" {
   # ami                     = data.aws_ami.amazon_linux.id
   # instance_type           = var.instance_type
