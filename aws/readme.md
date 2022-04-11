@@ -1,6 +1,6 @@
 Path "tf" - terraform files with cloudinit
 
-Before start you should create s3 bucket named "statebucket-my-for-epamq" and enter "yes"
+Before start you should create s3 bucket named "statebucket-my-for-epamq"
 
 And need to add you credentials from AWS: 
 
