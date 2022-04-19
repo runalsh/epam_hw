@@ -319,11 +319,13 @@ resource "aws_security_group" "efs_sg" {
       prefix_list_ids = []
       security_groups = []
       self = false
+     description = "allow incoming connection to efs"
     }
   ]
 
   egress = [
     {
+    description = "allow out connections from efs"
     from_port = 0
     to_port = 0
     protocol = "-1"
@@ -386,6 +388,7 @@ resource "aws_security_group" "db_sg" {
 
   ingress = [
     {
+      description = "allow out connections to db"
       from_port = 3306
       to_port = 3306
       protocol = "tcp"
@@ -399,6 +402,7 @@ resource "aws_security_group" "db_sg" {
 
   egress = [
     {
+	description = "allow out connections from db"
     from_port = 0
     to_port = 0
     protocol = "-1"
